@@ -150,17 +150,26 @@ const LoginView = () => {
               >
                 Sign in now
               </Button>
+              <Grid container>
+                <Grid item xs>
+                  <Link href="#" variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Typography color="textSecondary" variant="body1">
+                    Don&apos;t have an account?{' '}
+                    <Link component={RouterLink} to="/register" variant="h6">
+                      Sign up
+                    </Link>
+                  </Typography>
+                </Grid>
+              </Grid>
             </Box>
           </form>
           {/* </form>
             )}
           </Formik> */}
-          <Typography color="textSecondary" variant="body1">
-            Don&apos;t have an account?{' '}
-            <Link component={RouterLink} to="/register" variant="h6">
-              Sign up
-            </Link>
-          </Typography>
         </Container>
       </Box>
     </Page>

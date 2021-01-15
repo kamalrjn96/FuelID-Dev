@@ -27,8 +27,15 @@ const Dashboard = () => {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [allOrders, setAllOrders] = useState([]);
+  const [orderHistory, setOrderHistory] = useState([]);
+  const [allOrderHistory, setAllOrderHistory] = useState([]);
   let currentOrderRef;
+  let currentPriceRef;
   let allOrderRef;
+  let orderHistoryRef;
+  let allOrderHistoryRef;
+
+  let today = new Date().toISOString().slice(0, 10);
 
   {
     currentUser &&
@@ -37,6 +44,8 @@ const Dashboard = () => {
         .collection('orders')
         .where('userID', '==', currentUser.uid)
         .where('orderStatus', '==', 1));
+
+    currentPriceRef = db.collection('prices').doc(today);
 
     useEffect(() => {
       const fetchData = async () => {
@@ -61,6 +70,57 @@ const Dashboard = () => {
           });
         }
         setOrders(updatedOrders);
+      });
+    }, []);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        const doc = await currentPriceRef.get();
+
+        setPrice(doc.data().price);
+      };
+      fetchData();
+    }, []);
+
+    useEffect(() => {
+      return currentPriceRef.onSnapshot(function (doc) {
+        if (doc) {
+          setPrice(doc.data().price);
+        }
+      });
+    }, []);
+
+    orderHistoryRef = db
+      .collection('orders')
+      .where('userID', '==', currentUser.uid);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        const data = await orderHistoryRef.get();
+
+        let initialOrders = [];
+        data.forEach(function (doc) {
+          if (doc.data().orderStatus !== 1) {
+            initialOrders.push(doc.data());
+          }
+        });
+
+        setOrderHistory(initialOrders);
+      };
+      fetchData();
+    }, []);
+
+    useEffect(() => {
+      return orderHistoryRef.onSnapshot(function (data) {
+        let updatedOrders = [];
+        if (data) {
+          data.forEach(function (doc) {
+            if (doc.data().orderStatus !== 1) {
+              updatedOrders.push(doc.data());
+            }
+          });
+        }
+        setOrderHistory(updatedOrders);
       });
     }, []);
 
@@ -93,6 +153,37 @@ const Dashboard = () => {
     }, []);
   }
 
+  currentUser.uid &&
+    (allOrderHistoryRef = db
+      .collection('orders')
+      .where('orderStatus', '!=', 1));
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await allOrderHistoryRef.get();
+      let initialOrders = [];
+
+      data.forEach(function (doc) {
+        initialOrders.push(doc.data());
+      });
+
+      setAllOrderHistory(initialOrders);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    return allOrderHistoryRef.onSnapshot(function (data) {
+      let updatedOrders = [];
+      if (data) {
+        data.forEach(function (doc) {
+          updatedOrders.push(doc.data());
+        });
+      }
+      setAllOrderHistory(updatedOrders);
+    });
+  }, []);
+
   const [userData, setUserData] = useState();
 
   useEffect(() => {
@@ -119,14 +210,17 @@ const Dashboard = () => {
     );
   };
 
+  const showOrderHistory = (order) => {
+    return (
+      <Grid item lg={12} md={12} xl={9} xs={12}>
+        <LatestOrders order={order} userdata={userData} />
+      </Grid>
+    );
+  };
+
   return (
     <Page className={classes.root} title="Dashboard">
       <Container maxWidth={false}>
-        {console.log(
-          userData,
-          userData && userData.isCustomer,
-          userData && userData.isDriver
-        )}
         {userData && userData.isCustomer && (
           <div>
             <Typography color="textPrimary" variant="h2">
@@ -139,7 +233,16 @@ const Dashboard = () => {
               {orders.map((order) => {
                 return showCurrentOrder(order);
               })}
-              {console.log(orders)}
+
+              {orderHistory && orderHistory.length > 0 && (
+                <Grid item lg={12} md={12} xl={9} xs={12}>
+                  <LatestOrders orders={orderHistory} userdata={userData} />
+                </Grid>
+              )}
+              {/* {orderHistory.map((order) => {
+                return showOrderHistory(order);
+              })} */}
+              {console.log(orderHistory)}
               {/*  <Grid
             item
             lg={3}
@@ -197,13 +300,18 @@ const Dashboard = () => {
               Welcome {currentUser && currentUser.displayName}
             </Typography>
             <Grid container spacing={3}>
-              {/* <Grid item lg={3} sm={6} xl={3} xs={12}>
-                <Budget price={price} />
-              </Grid> */}
-
               {allOrders.map((order) => {
                 return showCurrentOrder(order);
               })}
+
+              {allOrderHistory && allOrderHistory.length > 0 && (
+                <Grid item lg={12} md={12} xl={9} xs={12}>
+                  <LatestOrders orders={allOrderHistory} userdata={userData} />
+                </Grid>
+              )}
+
+              {console.log(allOrderHistory)}
+
               {/*  <Grid
             item
             lg={3}
@@ -249,9 +357,75 @@ const Dashboard = () => {
           >
             <LatestProducts />
           </Grid> */}
-              {/* <Grid item lg={12} md={12} xl={9} xs={12}>
-                <LatestOrders />
-              </Grid>*/}
+            </Grid>
+          </div>
+        )}
+        {userData && userData.isOwner !== undefined && (
+          <div>
+            <Typography color="textPrimary" variant="h2">
+              Welcome {currentUser && currentUser.displayName}
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item lg={3} sm={6} xl={3} xs={12}>
+                <Budget price={price} />
+              </Grid>
+              {allOrders.map((order) => {
+                return showCurrentOrder(order);
+              })}
+
+              {allOrderHistory && allOrderHistory.length > 0 && (
+                <Grid item lg={12} md={12} xl={9} xs={12}>
+                  <LatestOrders orders={allOrderHistory} userdata={userData} />
+                </Grid>
+              )}
+
+              {console.log(allOrderHistory)}
+
+              {/*  <Grid
+            item
+            lg={3}
+            sm={6}
+            xl={3}
+            xs={12}
+          >
+            <TasksProgress />
+          </Grid>
+          <Grid
+            item
+            lg={3}
+            sm={6}
+            xl={3}
+            xs={12}
+          >
+            <TotalProfit />
+          </Grid>
+          <Grid
+            item
+            lg={8}
+            md={12}
+            xl={9}
+            xs={12}
+          >
+            <Sales />
+          </Grid>
+          <Grid
+            item
+            lg={4}
+            md={6}
+            xl={3}
+            xs={12}
+          >
+            <TrafficByDevice />
+          </Grid>
+          <Grid
+            item
+            lg={4}
+            md={6}
+            xl={3}
+            xs={12}
+          >
+            <LatestProducts />
+          </Grid> */}
             </Grid>
           </div>
         )}

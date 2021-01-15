@@ -100,7 +100,7 @@ export default function OrderDialog(props) {
 
   const handlePlaceOrder = () => {
     db.collection('orders')
-      .doc()
+      .doc(`SG-${random}`)
       .set({
         userID: currentUser.uid,
         orderID: `SG-${random}`,
@@ -113,7 +113,9 @@ export default function OrderDialog(props) {
         remarks: remarks,
         customerName: currentUser.displayName,
         mobileNumber: userData.mobileNumber,
-        created: Date.now()
+        created: Date.now(),
+        addressValue: userAddress,
+        OTP: Math.floor(1000 + Math.random() * 9000)
       })
       .then(function () {
         console.log('Document successfully written!');
@@ -332,7 +334,17 @@ export default function OrderDialog(props) {
           onChange={(e) => setRemarks(e.target.value)}
           placeholder="Place order for a later date | Provide delivery instructions"
         />
+        <br></br>
+        <br></br>
 
+        <Typography color="textSecondary" variant="caption">
+          *Actual Price will depend on the actual quantity of the fuel
+          Delivered.
+        </Typography>
+        <br></br>
+        <Typography color="textSecondary" variant="caption">
+          **Fuel price is dependant on the day's pricing
+        </Typography>
         <div>
           <Dialog
             disableBackdropClick

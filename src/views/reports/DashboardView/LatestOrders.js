@@ -92,13 +92,14 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const LatestOrders = ({ ...rest }) => {
+const LatestOrders = (props) => {
   const classes = useStyles();
   const [orders] = useState(data);
 
   return (
-    <Card className={clsx(classes.root)} {...rest}>
-      <CardHeader title="Latest Orders" />
+    <Card className={clsx(classes.root)}>
+      {console.log(props)}
+      <CardHeader title="Order History" />
       <Divider />
       <PerfectScrollbar>
         <Box minWidth={800}>
@@ -106,28 +107,43 @@ const LatestOrders = ({ ...rest }) => {
             <TableHead>
               <TableRow>
                 <TableCell>Order Ref</TableCell>
+                {props.userData && props.userData.isDriver && (
+                  <TableCell>Customer name</TableCell>
+                )}
                 <TableCell>Location</TableCell>
-                <TableCell sortDirection="desc">
-                  <Tooltip enterDelay={300} title="Sort">
-                    <TableSortLabel active direction="desc">
-                      Date
-                    </TableSortLabel>
-                  </Tooltip>
-                </TableCell>
+                <TableCell>Date Ordered</TableCell>
+                <TableCell>Date Delivered</TableCell>
                 <TableCell>Payment Method</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders.map((order) => (
-                <TableRow hover key={order.id}>
-                  <TableCell>{order.ref}</TableCell>
-                  <TableCell>{order.customer.name}</TableCell>
+              {props.orders.map((order) => (
+                <TableRow key={order.orderID}>
+                  <TableCell>{order.orderID}</TableCell>
+                  {props.userData && props.userData.isDriver && (
+                    <TableCell>{order.customerName}</TableCell>
+                  )}
                   <TableCell>
-                    {moment(order.createdAt).format('DD/MM/YYYY')}
+                    {order.addressValue ? order.addressValue : 'Address'}
                   </TableCell>
                   <TableCell>
-                    <Chip color="primary" label={order.status} size="small" />
+                    {moment(order.created).format('DD/MM/YYYY')}
+                  </TableCell>
+                  <TableCell>
+                    {moment(order.delivered).format('DD/MM/YYYY')}
+                  </TableCell>
+                  <TableCell>
+                    {order.paymentType === 1 ? 'Cash' : 'Credit'}
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      color="primary"
+                      label={
+                        order.orderStatus === 2 ? 'Delivered' : 'Cancelled'
+                      }
+                      size="small"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -135,16 +151,6 @@ const LatestOrders = ({ ...rest }) => {
           </Table>
         </Box>
       </PerfectScrollbar>
-      <Box display="flex" justifyContent="flex-end" p={2}>
-        <Button
-          color="primary"
-          endIcon={<ArrowRightIcon />}
-          size="small"
-          variant="text"
-        >
-          View all
-        </Button>
-      </Box>
     </Card>
   );
 };

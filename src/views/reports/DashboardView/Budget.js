@@ -60,8 +60,48 @@ const useStyles = makeStyles((theme) => ({
 
 const Budget = (props) => {
   const classes = useStyles();
+  const { currentUser } = useAuth();
+
+  let today = new Date().toISOString().slice(0, 10);
+
+  const [userData, setUserData] = useState();
+
+  useEffect(() => {
+    try {
+      db.collection('users')
+        .doc(currentUser.uid)
+        .get()
+        .then(function (doc) {
+          if (doc) {
+            setUserData(doc.data());
+          }
+        });
+    } catch (err) {
+      console.log(err);
+      console.log('Failed to get user data');
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      db.collection('users')
+        .doc(currentUser.uid)
+        .get()
+        .then(function (doc) {
+          if (doc) {
+            setUserData(doc.data());
+          }
+        });
+    } catch (err) {
+      console.log(err);
+      console.log('Failed to get user data');
+    }
+  }, [currentUser]);
 
   const [openOrder, setOpenOrder] = useState(false);
+
+  const [priceModal, setPriceModal] = useState(false);
+  const [price, setPrice] = useState(props.price);
 
   const handleClickOrderOpen = () => {
     setOpenOrder(true);
@@ -71,62 +111,173 @@ const Budget = (props) => {
     setOpenOrder(false);
   };
 
+  const handlePriceModalOpen = () => {
+    setPriceModal(true);
+  };
+
+  const handleClosePriceModal = () => {
+    setPriceModal(false);
+  };
+
+  const handleAddNewPrice = (e) => {
+    e.preventDefault();
+
+    try {
+      db.collection('prices')
+        .doc(today)
+        .set({ price: parseInt(price) })
+        .then(function () {
+          console.log('Document successfully written!');
+        });
+    } catch (err) {
+      console.log(err);
+      console.log('Failed to get user data');
+    }
+    handleClosePriceModal();
+  };
+
   return (
     <Card className={clsx(classes.root)}>
-      <CardContent>
-        <Grid container justify="space-between" spacing={3}>
-          <Grid item>
-            <Typography color="textSecondary" gutterBottom variant="h3">
-              Today's Price
-            </Typography>
-            <Typography color="textPrimary" variant="h3">
-              {props.price}
-            </Typography>
-          </Grid>
+      {userData && userData.isCustomer && (
+        <div>
+          <CardContent>
+            <Grid container justify="space-between" spacing={3}>
+              <Grid item>
+                <Typography color="textSecondary" gutterBottom variant="h3">
+                  Today's Price
+                </Typography>
+                <Typography color="textPrimary" variant="h3">
+                  {props.price}
+                </Typography>
+              </Grid>
 
-          <Box
-            mt={4}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            paddingRight={2}
-          >
-            <Button
-              color="primary"
-              /* disabled={} */
-              fullWidth
-              size="small"
-              type="submit"
-              variant="contained"
-              onClick={handleClickOrderOpen}
-            >
-              Order Now
-            </Button>
-          </Box>
-        </Grid>
-        <Box mt={2} display="flex" alignItems="center">
-          <Typography color="textSecondary" variant="caption">
-            <i className="fas fa-rupee-sign"></i> / Litre
-          </Typography>
-        </Box>
-      </CardContent>
+              <Box
+                mt={4}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                paddingRight={2}
+              >
+                <Button
+                  color="primary"
+                  /* disabled={} */
+                  fullWidth
+                  size="small"
+                  type="submit"
+                  variant="contained"
+                  onClick={handleClickOrderOpen}
+                >
+                  Order Now
+                </Button>
+              </Box>
+            </Grid>
+            <Box mt={2} display="flex" alignItems="center">
+              <Typography color="textSecondary" variant="caption">
+                <i className="fas fa-rupee-sign"></i> / Litre
+              </Typography>
+            </Box>
+          </CardContent>
 
-      <div>
-        {openOrder && (
-          <Dialog
-            open={openOrder}
-            onClose={handleCloseOrder}
-            aria-labelledby="form-dialog-title"
-            fullWidth={true}
-            maxWidth={'sm'}
-          >
-            <OrderDialog
-              price={props.price}
-              closeOrder={handleCloseOrder}
-            ></OrderDialog>
-          </Dialog>
-        )}
-      </div>
+          <div>
+            {openOrder && (
+              <Dialog
+                open={openOrder}
+                onClose={handleCloseOrder}
+                aria-labelledby="form-dialog-title"
+                fullWidth={true}
+                maxWidth={'sm'}
+              >
+                <OrderDialog
+                  price={props.price}
+                  closeOrder={handleCloseOrder}
+                ></OrderDialog>
+              </Dialog>
+            )}
+          </div>
+        </div>
+      )}
+
+      {userData && userData.isOwner !== undefined && (
+        <div>
+          <CardContent>
+            <Grid container justify="space-between" spacing={3}>
+              <Grid item>
+                <Typography color="textSecondary" gutterBottom variant="h3">
+                  Today's Price
+                </Typography>
+                <Typography color="textPrimary" variant="h3">
+                  {props.price}
+                </Typography>
+              </Grid>
+
+              <Box
+                mt={4}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                paddingRight={2}
+              >
+                <Button
+                  color="primary"
+                  /* disabled={} */
+                  fullWidth
+                  size="small"
+                  type="submit"
+                  variant="contained"
+                  onClick={handlePriceModalOpen}
+                >
+                  Set Price
+                </Button>
+              </Box>
+            </Grid>
+            <Box mt={2} display="flex" alignItems="center">
+              <Typography color="textSecondary" variant="caption">
+                <i className="fas fa-rupee-sign"></i> / Litre
+              </Typography>
+            </Box>
+          </CardContent>
+
+          <div>
+            {priceModal && (
+              <div>
+                <Dialog
+                  open={priceModal}
+                  onClose={handleCloseOrder}
+                  aria-labelledby="form-dialog-title"
+                  fullWidth={true}
+                  maxWidth={'sm'}
+                >
+                  <DialogTitle>Set Price</DialogTitle>
+                  <DialogContent>
+                    <form className={classes.container}>
+                      <FormControl className={classes.formControl}>
+                        <TextField
+                          fullWidth
+                          label="Price"
+                          margin="normal"
+                          name="price"
+                          variant="outlined"
+                          required
+                          defaultValue={props.price}
+                          onChange={(e) => setPrice(e.target.value)}
+                        />
+                      </FormControl>
+                    </form>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClosePriceModal} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddNewPrice} color="primary">
+                      Ok
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

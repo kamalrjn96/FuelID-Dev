@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core';
+import { Container, Grid, makeStyles, Typography } from '@material-ui/core';
 import NavBar from './NavBar';
 import TopBar from './TopBar';
 import { useAuth } from '../../contexts/AuthContext';
@@ -32,6 +32,16 @@ const useStyles = makeStyles((theme) => ({
     flex: '1 1 auto',
     height: '100%',
     overflow: 'auto'
+  },
+  footer: {
+    padding: theme.spacing(3, 2),
+    marginTop: 'auto',
+    backgroundColor:
+      theme.palette.type === 'light'
+        ? theme.palette.grey[200]
+        : theme.palette.grey[800],
+    bottom: 0,
+    position: 'sticky'
   }
 }));
 
@@ -89,6 +99,23 @@ const DashboardLayout = () => {
         <div className={classes.contentContainer}>
           <div className={classes.content}>
             <Outlet />
+            <footer className={classes.footer}>
+              <Container /*  maxWidth="sm" */>
+                <Grid container justify="space-between" className={classes.pos}>
+                  <Grid item>
+                    <Typography color="textPrimary" variant="h6">
+                      SHAKTHI GANAPATHI FUEL STATION
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography color="textSecondary" variant="caption">
+                      Phone : 9008761088 | Email : r6mesh@gmail.com | Toll Free
+                      No : 1800 2333 555
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Container>
+            </footer>
           </div>
         </div>
       </div>
