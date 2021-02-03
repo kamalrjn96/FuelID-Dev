@@ -66,16 +66,16 @@ export default function OrderDialog(props) {
     userRef = db.collection('users').doc(currentUser.uid);
   }
 
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState(props.userData);
 
-  useEffect(() => {
+  /*  useEffect(() => {
     const fetchData = async () => {
       const data = await userRef.get();
 
       setUserData(data.data());
     };
     fetchData();
-  }, []);
+  }, []); */
 
   /* useEffect(() => {
     userRef
@@ -287,6 +287,8 @@ export default function OrderDialog(props) {
                   label="Qty"
                   onChange={(e) => setQuant(e.target.value)}
                   type="number"
+                  min="50"
+                  max="600"
                 />
                 <FormHelperText>Choose Quantity</FormHelperText>
               </FormControl>
@@ -307,7 +309,7 @@ export default function OrderDialog(props) {
                 <FormHelperText>Calculated Price</FormHelperText>
               </FormControl>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
               <FormControl className={classes.formControl}>
                 <Select
                   labelId="demo-simple-select-helper-label"
@@ -320,7 +322,7 @@ export default function OrderDialog(props) {
                 </Select>
                 <FormHelperText>Choose Payment Option</FormHelperText>
               </FormControl>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Grid>
 

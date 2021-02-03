@@ -26,6 +26,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import PeopleIcon from '@material-ui/icons/PeopleOutlined';
+import { ChildCareSharp } from '@material-ui/icons';
+import { ButtonGroup } from 'react-bootstrap';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,37 +61,47 @@ const useStyles = makeStyles((theme) => ({
 
 const TotalCustomers = (props) => {
   const classes = useStyles();
-  const [btnToggle, setBtnToggle] = useState(false);
+
+  const [validationState, setValidationState] = useState(1);
+  const [actualQuant, setActualQuant] = useState(0);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+  const [actualAmount, setActualAmount] = useState(0);
   const [otp, setOTP] = useState();
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openFailed, setOpenFailed] = useState(false);
   const { currentUser } = useAuth();
 
-  function handleCompleteOrder(orderOTP, orderID) {
-    console.log(otp, orderOTP);
-    if (otp == orderOTP) {
-      console.log('Success');
-      setOpenSuccess(true);
+  function verifyOTP(orderOTP) {
+    if (orderOTP && otp == orderOTP) {
+      setValidationState(3);
 
-      console.log(db.collection('orders').doc(orderID));
-
-      db.collection('orders')
-        .doc(orderID)
-        .update({
-          orderStatus: 2,
-          delivered: Date.now()
-        })
-        .then(function () {
-          console.log('Document successfully written!');
-        })
-        .catch(function (error) {
-          console.error('Error writing document: ', error);
-        });
+      setOTP();
     } else {
       setOpenFailed(true);
-      setBtnToggle(!btnToggle);
-      console.log('failed');
+      setValidationState(1);
+      setOTP();
+      console.log('OTP verification failed');
     }
+  }
+  function handleCompleteOrder(actualQuant, deliveryCharge, orderID) {
+    db.collection('orders')
+      .doc(orderID)
+      .update({
+        orderStatus: 2,
+        delivered: Date.now()
+      })
+      .then(function () {
+        setOpenSuccess(true);
+        console.log('Document successfully written!');
+        setValidationState(1);
+        setOTP();
+      })
+      .catch(function (error) {
+        setOpenFailed(true);
+        console.error('Error writing document: ', error);
+        setValidationState(1);
+        setOTP();
+      });
   }
 
   useEffect(() => {
@@ -259,30 +271,30 @@ const TotalCustomers = (props) => {
               </Grid>
             </Grid>
 
-            {!btnToggle && (
+            {validationState === 1 && (
               <Grid container justify="space-between">
                 <Grid item>
                   <Button
                     color="primary"
                     size="small"
-                    onClick={() => setBtnToggle(!btnToggle)}
+                    onClick={() => setValidationState(2)}
+                    variant="contained"
                   >
                     Enter OTP
                   </Button>
                 </Grid>
               </Grid>
             )}
-            {btnToggle && (
+            {validationState === 2 && (
               <Grid container justify="space-between">
                 <Grid item>
                   <Button
                     color="primary"
                     size="small"
-                    onClick={() =>
-                      handleCompleteOrder(props.order.OTP, props.order.orderID)
-                    }
+                    onClick={() => verifyOTP(props.order.OTP)}
+                    variant="contained"
                   >
-                    Complete Order
+                    Verify OTP
                   </Button>
                 </Grid>
                 <Grid item>
@@ -298,6 +310,48 @@ const TotalCustomers = (props) => {
                 </Grid>
               </Grid>
             )}
+            {validationState === 3 && (
+              <Grid container justify="space-between" spacing={4}>
+                <Grid item>
+                  <Button
+                    color="primary"
+                    size="small"
+                    onClick={() =>
+                      handleCompleteOrder(
+                        actualQuant,
+                        deliveryCharge,
+                        props.order.orderID
+                      )
+                    }
+                    variant="contained"
+                  >
+                    Complete Order
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <TextField
+                    name="actualQuantity"
+                    label="Quantity"
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) => setActualQuant(e.target.value)}
+
+                    /* style={{ width: '25%' }} */
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    name="deliveryCharge"
+                    label="DeliveryCharge"
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) => setDeliveryCharge(e.target.value)}
+                    style={{ width: '25%' }}
+                  />
+                </Grid>
+              </Grid>
+            )}
+            <br></br>
             <Grid item>
               <Typography color="textSecondary" variant="caption">
                 {props.order.remarks}

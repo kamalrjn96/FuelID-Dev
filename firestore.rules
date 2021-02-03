@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userID} {
+      allow read: if isSignedIn();
+      allow write: if  isSignedIn() && isVerifiedUser(userID);
+    }
+
+    match /orders/{document=**}{
+      allow read, write: if isSignedIn();
+    }
+
+    match /priceForTheDay/{document=**}{
+      allow read: if isSignedIn();
+      allow write: if  isSignedIn() && isVerifiedUser('NqgfZFeTsXOxwPv4c3zzABPyTQ83');
+    }
+
+//    match /{document=**} {
+//      allow read, write; 
+//    } 
+    
+    /// Functions ///
+    function isSignedIn(){
+    return request.auth != null;
+    }
+    
+    function isVerifiedUser(userID){
+    return request.auth.id == userID && request.auth.token.email_verified
+    }
+    
+    function existingData(){
+    return resource.data
+    }
+    
+    function incomingData(){
+    return request.resource.data
+    }
+  }
+}

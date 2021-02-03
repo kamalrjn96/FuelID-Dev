@@ -14,6 +14,7 @@ import {
 } from '@material-ui/core';
 import { useAuth } from '../../contexts/AuthContext';
 import Alert from '@material-ui/lab/Alert';
+import Loading from '../../state/Loading';
 
 import Page from 'src/components/Page';
 
@@ -37,6 +38,10 @@ const LoginView = () => {
   const [email, setemail] = useState(false);
   const [password, setpassword] = useState(false);
 
+  const loadState = () => {
+    return <Loading />;
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -45,6 +50,7 @@ const LoginView = () => {
 
       setLoading(true);
       await login(email, password);
+      loadState();
       navigate('/app/dashboard', { replace: true });
     } catch {
       setError('Failed to log in');

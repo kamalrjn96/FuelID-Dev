@@ -240,7 +240,9 @@ export default function UpdateProfileDialog(props) {
                 />
               )}
 
-              {inputFields &&
+              {userData &&
+                userData.isCustomer &&
+                inputFields &&
                 inputFields.length > 0 &&
                 inputFields.map(
                   (inputField) => (

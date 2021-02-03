@@ -113,7 +113,7 @@ const RegisterView = () => {
               margin="normal"
               name="firstName"
               variant="outlined"
-              required
+              
               onChange={(e) => setfirstName(e.target.value)}
             />
             <TextField
@@ -122,7 +122,7 @@ const RegisterView = () => {
               margin="normal"
               name="LastName"
               variant="outlined"
-              required
+              
               onChange={(e) => setlastName(e.target.value)}
             />
             <TextField

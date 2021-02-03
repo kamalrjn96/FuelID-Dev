@@ -64,7 +64,7 @@ const Budget = (props) => {
 
   let today = new Date().toISOString().slice(0, 10);
 
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState(props.userData);
 
   useEffect(() => {
     try {
@@ -82,7 +82,7 @@ const Budget = (props) => {
     }
   }, []);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     try {
       db.collection('users')
         .doc(currentUser.uid)
@@ -96,7 +96,7 @@ const Budget = (props) => {
       console.log(err);
       console.log('Failed to get user data');
     }
-  }, [currentUser]);
+  }, [currentUser]); */
 
   const [openOrder, setOpenOrder] = useState(false);
 
@@ -189,6 +189,7 @@ const Budget = (props) => {
               >
                 <OrderDialog
                   price={props.price}
+                  userData={props.userData}
                   closeOrder={handleCloseOrder}
                 ></OrderDialog>
               </Dialog>

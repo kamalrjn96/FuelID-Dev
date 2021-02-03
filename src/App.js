@@ -7,16 +7,27 @@ import 'src/mixins/chartjs';
 import theme from 'src/theme';
 import routes from 'src/routes';
 import { AuthProvider } from 'src/contexts/AuthContext';
+import { StoreProvider, createStore } from 'easy-peasy';
+import model from './model';
 
 const App = () => {
   const routing = useRoutes(routes);
 
+  const store = createStore({
+    orders: [],
+    price: null,
+    userData: {}
+  });
+  console.log(model);
+
   return (
     <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <GlobalStyles />
-        {routing}
-      </ThemeProvider>
+      <StoreProvider store={store}>
+        <ThemeProvider theme={theme}>
+          <GlobalStyles />
+          {routing}
+        </ThemeProvider>
+      </StoreProvider>
     </AuthProvider>
   );
 };

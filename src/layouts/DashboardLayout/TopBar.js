@@ -13,10 +13,12 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
+import SettingsIcon from '@material-ui/icons/Settings';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
 import InputIcon from '@material-ui/icons/Input';
 import Logo from 'src/components/Logo';
 import UpdateProfileDialog from '../../views/dialog/UpdateProfileDialog';
+import UserSettingsDialog from '../../views/dialog/UserSettingsDialog';
 import Dialog from '@material-ui/core/Dialog';
 import db from '../../firebase';
 
@@ -36,14 +38,23 @@ const TopBar = ({ className, onMobileNavOpen, userData, ...rest }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [openUpdate, setOpenUpdate] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
   const { currentUser } = useAuth();
 
-  const handleClickUpdateOpen = () => {
+  const handleClickUpdateProfileOpen = () => {
     setOpenUpdate(true);
+  };
+
+  const handleClickUpdateSettingsOpen = () => {
+    setOpenSettings(true);
   };
 
   const handleCloseUpdate = () => {
     setOpenUpdate(false);
+  };
+
+  const handleCloseSettings = () => {
+    setOpenSettings(false);
   };
 
   async function handleSubmit(e) {
@@ -65,13 +76,24 @@ const TopBar = ({ className, onMobileNavOpen, userData, ...rest }) => {
 
           <Box flexGrow={1} />
           {/* <Hidden mdDown> */}
+          {userData && userData.isOwner && (
+            <IconButton color="inherit">
+              <Badge
+                badgeContent={notifications.length}
+                color="primary"
+                variant="dot"
+              >
+                <SettingsIcon onClick={handleClickUpdateSettingsOpen} />
+              </Badge>
+            </IconButton>
+          )}
           <IconButton color="inherit">
             <Badge
               badgeContent={notifications.length}
               color="primary"
               variant="dot"
             >
-              <PersonOutlineIcon onClick={handleClickUpdateOpen} />
+              <PersonOutlineIcon onClick={handleClickUpdateProfileOpen} />
             </Badge>
           </IconButton>
           <IconButton color="inherit">
@@ -99,6 +121,23 @@ const TopBar = ({ className, onMobileNavOpen, userData, ...rest }) => {
               price={0}
               closeOrder={handleCloseUpdate}
             ></UpdateProfileDialog>
+          </Dialog>
+        )}
+      </div>
+      <div>
+        {openSettings && (
+          <Dialog
+            open={openSettings}
+            onClose={handleCloseSettings}
+            aria-labelledby="form-dialog-title"
+            fullWidth={true}
+            maxWidth={'sm'}
+          >
+            <UserSettingsDialog
+              userData={userData}
+              price={0}
+              closeOrder={handleCloseSettings}
+            ></UserSettingsDialog>
           </Dialog>
         )}
       </div>

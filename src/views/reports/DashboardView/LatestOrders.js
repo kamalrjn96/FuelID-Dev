@@ -98,8 +98,7 @@ const LatestOrders = (props) => {
 
   return (
     <Card className={clsx(classes.root)}>
-      {console.log(props)}
-      <CardHeader title="Order History" />
+      {/* <CardHeader title="Order History" /> */}
       <Divider />
       <PerfectScrollbar>
         <Box minWidth={800}>
@@ -107,13 +106,21 @@ const LatestOrders = (props) => {
             <TableHead>
               <TableRow>
                 <TableCell>Order Ref</TableCell>
-                {props.userData && props.userData.isDriver && (
+                {props.userdata && props.userdata.isDriver && (
+                  <TableCell>Customer name</TableCell>
+                )}
+                {props.userdata && props.userdata.isOwner && (
                   <TableCell>Customer name</TableCell>
                 )}
                 <TableCell>Location</TableCell>
                 <TableCell>Date Ordered</TableCell>
-                <TableCell>Date Delivered</TableCell>
+                <TableCell>Date Completed</TableCell>
                 <TableCell>Payment Method</TableCell>
+
+                <TableCell>Quantity(Ltrs)</TableCell>
+
+                <TableCell>Amount(Rs)</TableCell>
+
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -121,7 +128,10 @@ const LatestOrders = (props) => {
               {props.orders.map((order) => (
                 <TableRow key={order.orderID}>
                   <TableCell>{order.orderID}</TableCell>
-                  {props.userData && props.userData.isDriver && (
+                  {props.userdata && props.userdata.isDriver && (
+                    <TableCell>{order.customerName}</TableCell>
+                  )}
+                  {props.userdata && props.userdata.isOwner && (
                     <TableCell>{order.customerName}</TableCell>
                   )}
                   <TableCell>
@@ -136,11 +146,20 @@ const LatestOrders = (props) => {
                   <TableCell>
                     {order.paymentType === 1 ? 'Cash' : 'Credit'}
                   </TableCell>
+
+                  <TableCell>{order.quantity}</TableCell>
+
+                  <TableCell>{order.price}</TableCell>
+
                   <TableCell>
                     <Chip
                       color="primary"
                       label={
-                        order.orderStatus === 2 ? 'Delivered' : 'Cancelled'
+                        order.orderStatus === 1
+                          ? 'In-Progress'
+                          : order.orderStatus === 2
+                          ? 'Delivered'
+                          : 'Cancelled'
                       }
                       size="small"
                     />

@@ -65,6 +65,7 @@ const DashboardLayout = () => {
         .then(function (doc) {
           if (doc) {
             setUserData(doc.data());
+            console.log(doc.data());
           }
         });
     } catch (err) {
