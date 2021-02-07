@@ -43,6 +43,7 @@ const TopBar = ({ className, onMobileNavOpen, userData, ...rest }) => {
 
   const handleClickUpdateProfileOpen = () => {
     setOpenUpdate(true);
+    console.log(userData);
   };
 
   const handleClickUpdateSettingsOpen = () => {
@@ -118,7 +119,6 @@ const TopBar = ({ className, onMobileNavOpen, userData, ...rest }) => {
           >
             <UpdateProfileDialog
               userData={userData}
-              price={0}
               closeOrder={handleCloseUpdate}
             ></UpdateProfileDialog>
           </Dialog>

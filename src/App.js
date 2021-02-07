@@ -18,7 +18,6 @@ const App = () => {
     price: null,
     userData: {}
   });
-  console.log(model);
 
   return (
     <AuthProvider>

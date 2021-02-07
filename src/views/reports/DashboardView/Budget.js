@@ -82,22 +82,6 @@ const Budget = (props) => {
     }
   }, []);
 
-  /*   useEffect(() => {
-    try {
-      db.collection('users')
-        .doc(currentUser.uid)
-        .get()
-        .then(function (doc) {
-          if (doc) {
-            setUserData(doc.data());
-          }
-        });
-    } catch (err) {
-      console.log(err);
-      console.log('Failed to get user data');
-    }
-  }, [currentUser]); */
-
   const [openOrder, setOpenOrder] = useState(false);
 
   const [priceModal, setPriceModal] = useState(false);
@@ -123,9 +107,9 @@ const Budget = (props) => {
     e.preventDefault();
 
     try {
-      db.collection('prices')
-        .doc(today)
-        .set({ price: parseInt(price) })
+      db.collection('priceForTheDay')
+        .doc('e8kgvrn1XGzqM4JYAG3X')
+        .update({ price: parseInt(price), lastUpdated: Date.now() })
         .then(function () {
           console.log('Document successfully written!');
         });
@@ -198,7 +182,7 @@ const Budget = (props) => {
         </div>
       )}
 
-      {userData && userData.isOwner !== undefined && (
+      {userData && userData.isOwner && (
         <div>
           <CardContent>
             <Grid container justify="space-between" spacing={3}>

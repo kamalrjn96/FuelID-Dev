@@ -85,7 +85,6 @@ export default function UpdateProfileDialog(props) {
             return { id: address.id, tag: address.tag, value: address.value };
           })
         );
-      console.log(userData);
     };
     fetchData();
   }, []);
@@ -227,18 +226,17 @@ export default function UpdateProfileDialog(props) {
                 defaultValue={lastName}
                 onChange={(e) => setlastName(e.target.value)}
               />
-              {userData && (
-                <TextField
-                  fullWidth
-                  label="Mobile number"
-                  margin="normal"
-                  name="mobileNumber"
-                  variant="outlined"
-                  required
-                  defaultValue={userData.mobileNumber}
-                  onChange={(e) => setmobileNumber(e.target.value)}
-                />
-              )}
+
+              <TextField
+                fullWidth
+                label="Mobile number"
+                margin="normal"
+                name="mobileNumber"
+                variant="outlined"
+                required
+                defaultValue={props.userData && props.userData.mobileNumber}
+                onChange={(e) => setmobileNumber(e.target.value)}
+              />
 
               {userData &&
                 userData.isCustomer &&

@@ -57,7 +57,7 @@ const DashboardLayout = () => {
 
   const [userData, setUserData] = useState();
 
-  useEffect(() => {
+  /*   useEffect(() => {
     try {
       db.collection('users')
         .doc(currentUser.uid)
@@ -73,16 +73,17 @@ const DashboardLayout = () => {
       console.log('Failed to get user data');
     }
   }, [currentUser]);
-
-  /* try {
-    db.collection('users')
-      .doc(currentUser.uid)
-      .onSnapshot((snapShot) => setUserData(snapShot.data()));
-    
-  } catch (err) {
-    console.log(err);
-    console.log('Failed to Update user data');
-  } */
+ */
+  useEffect(() => {
+    try {
+      db.collection('users')
+        .doc(currentUser.uid)
+        .onSnapshot((snapShot) => setUserData(snapShot.data()));
+    } catch (err) {
+      console.log(err);
+      console.log('Failed to Update user data');
+    }
+  }, []);
 
   return (
     <div className={classes.root}>

@@ -183,16 +183,6 @@ export default function UserSettingsDialog(props) {
             <form className={classes.root} noValidate>
               <TextField
                 fullWidth
-                label="Minimum Quantity"
-                margin="normal"
-                name="minQuantity"
-                variant="outlined"
-                required
-                type="number"
-                onChange={(e) => setMinQuantity(e.target.value)}
-              />
-              <TextField
-                fullWidth
                 label="Fuel Price"
                 margin="normal"
                 name="fuelPrice"
@@ -200,6 +190,26 @@ export default function UserSettingsDialog(props) {
                 required
                 defaultValue={price}
                 onChange={(e) => setlastName(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                label="Starting Stock"
+                margin="normal"
+                name="startingStock"
+                variant="outlined"
+                required
+                defaultValue={2000}
+                onChange={(e) => setlastName(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                label="Minimum Quantity"
+                margin="normal"
+                name="minQuantity"
+                variant="outlined"
+                required
+                type="number"
+                onChange={(e) => setMinQuantity(e.target.value)}
               />
 
               <div>

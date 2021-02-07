@@ -235,11 +235,18 @@ const Dashboard = () => {
     try {
       db.collection('users')
         .doc(currentUser.uid)
+        .onSnapshot(function (doc) {
+          if (doc) {
+            setUserData(doc.data());
+          }
+          /* 
         .get()
         .then(function (doc) {
           if (doc) {
             setUserData(doc.data());
           }
+        }); 
+        */
         });
     } catch (err) {
       console.log(err);
@@ -250,7 +257,7 @@ const Dashboard = () => {
   const showCurrentOrder = (order) => {
     return (
       <Grid item lg={3} sm={6} xl={3} xs={12}>
-        <TotalCustomers order={order} userdata={userData} />
+        <TotalCustomers order={order} userdata={userData} price={price} />
       </Grid>
     );
   };
@@ -365,7 +372,7 @@ const Dashboard = () => {
             </Grid>
           </div>
         )}
-        {userData && userData.isDriver !== undefined && (
+        {userData && userData.isDriver && (
           <div>
             <Typography color="textPrimary" variant="h2">
               Welcome {currentUser && currentUser.displayName}

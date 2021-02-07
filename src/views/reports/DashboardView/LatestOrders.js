@@ -21,6 +21,7 @@ import {
   makeStyles
 } from '@material-ui/core';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const data = [
   {
@@ -96,6 +97,10 @@ const LatestOrders = (props) => {
   const classes = useStyles();
   const [orders] = useState(data);
 
+  function changeOnHover(e) {
+    e.target.style.cursor = 'pointer';
+  }
+
   return (
     <Card className={clsx(classes.root)}>
       {/* <CardHeader title="Order History" /> */}
@@ -122,6 +127,7 @@ const LatestOrders = (props) => {
                 <TableCell>Amount(Rs)</TableCell>
 
                 <TableCell>Status</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -138,16 +144,22 @@ const LatestOrders = (props) => {
                     {order.addressValue ? order.addressValue : 'Address'}
                   </TableCell>
                   <TableCell>
-                    {moment(order.created).format('DD/MM/YYYY')}
+                    {moment(order.created).format('DD/MM/YYYY HH:mm')}
                   </TableCell>
                   <TableCell>
-                    {moment(order.delivered).format('DD/MM/YYYY')}
+                    {order.orderStatus !== 1
+                      ? moment(order.delivered).format('DD/MM/YYYY HH:mm')
+                      : ''}
                   </TableCell>
                   <TableCell>
                     {order.paymentType === 1 ? 'Cash' : 'Credit'}
                   </TableCell>
 
-                  <TableCell>{order.quantity}</TableCell>
+                  <TableCell>
+                    {order.orderStatus !== 1
+                      ? order.deliveredQuantity
+                      : order.quantity}
+                  </TableCell>
 
                   <TableCell>{order.price}</TableCell>
 
@@ -162,6 +174,13 @@ const LatestOrders = (props) => {
                           : 'Cancelled'
                       }
                       size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <MoreVertIcon
+                      color="primary"
+                      size="small"
+                      onMouseOver={(e) => changeOnHover(e)}
                     />
                   </TableCell>
                 </TableRow>

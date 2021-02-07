@@ -12,15 +12,15 @@ import {
   colors,
   makeStyles,
   Chip,
-  Button,
-  TextField
+  TextField,
+  Button
 } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import Dialog from '@material-ui/core/Dialog';
 import { db } from '../../../firebase';
 import { useAuth } from '../../../contexts/AuthContext';
 import CancelIcon from '@material-ui/icons/Cancel';
-
+import FormControl from '@material-ui/core/FormControl';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -56,6 +56,10 @@ const useStyles = makeStyles((theme) => ({
   },
   pos: {
     marginBottom: 12
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120
   }
 }));
 
@@ -69,6 +73,8 @@ const TotalCustomers = (props) => {
   const [otp, setOTP] = useState();
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openFailed, setOpenFailed] = useState(false);
+  const [openCancelRemark, setOpenCancelRemark] = useState(false);
+  const [cancelRemark, setCancelRemark] = useState('');
   const { currentUser } = useAuth();
 
   function verifyOTP(orderOTP) {
@@ -84,11 +90,20 @@ const TotalCustomers = (props) => {
     }
   }
   function handleCompleteOrder(actualQuant, deliveryCharge, orderID) {
+    let finalPrice;
+
+    actualQuant &&
+      deliveryCharge &&
+      (finalPrice =
+        Number(actualQuant) * Number(props.price) + Number(deliveryCharge));
     db.collection('orders')
       .doc(orderID)
       .update({
         orderStatus: 2,
-        delivered: Date.now()
+        delivered: Date.now(),
+        price: Number(finalPrice),
+        deliveredQuantity: Number(actualQuant),
+        deliveryCharge: Number(deliveryCharge)
       })
       .then(function () {
         setOpenSuccess(true);
@@ -116,14 +131,28 @@ const TotalCustomers = (props) => {
     }, 2000); //2 Second delay
   }, [openFailed]);
 
-  function handleCancelOrder(e, orderID) {
+  const handleOpenCancelOrderRemark = () => {
+    setOpenCancelRemark(true);
+  };
+
+  const handleCloseCancelOrderRemark = () => {
+    setOpenCancelRemark(false);
+  };
+
+  function changeOnHover(e) {
+    e.target.style.cursor = 'pointer';
+  }
+
+  function handleCancelOrder(e, orderID, cancelledBy) {
     e.preventDefault();
 
     db.collection('orders')
       .doc(orderID)
       .update({
         orderStatus: 3,
-        cancelled: Date.now()
+        cancelled: Date.now(),
+        cancelledBy: cancelledBy,
+        cancelRemark: cancelRemark
       })
       .then(function () {
         console.log('Document successfully written!');
@@ -131,14 +160,56 @@ const TotalCustomers = (props) => {
       .catch(function (error) {
         console.error('Error writing document: ', error);
       });
+
+    handleCloseCancelOrderRemark();
   }
 
   return (
     <Card className={clsx(classes.root)}>
       {props.userdata && props.userdata.isCustomer && (
         <div>
+          <Dialog
+            open={openCancelRemark}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            onClose={handleCloseCancelOrderRemark}
+          >
+            <DialogTitle>Add Remarks</DialogTitle>
+            <DialogContent>
+              <form className={classes.container}>
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    fullWidth
+                    label="Remarks"
+                    margin="normal"
+                    name="cancelRemarks"
+                    variant="outlined"
+                    required
+                    onChange={(e) => setCancelRemark(e.target.value)}
+                  />
+                </FormControl>
+              </form>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onMouseOver={(e) => changeOnHover(e)}
+                onClick={(e) => handleCloseCancelOrderRemark()}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button
+                onMouseOver={(e) => changeOnHover(e)}
+                onClick={(e) =>
+                  handleCancelOrder(e, props.order.orderID, 'Customer')
+                }
+                color="primary"
+              >
+                Ok
+              </Button>
+            </DialogActions>
+          </Dialog>
           <CardContent>
-            {' '}
             <Grid container justify="space-between" spacing={1}>
               <Grid container justify="space-between" spacing={6}>
                 <Grid item>
@@ -151,12 +222,13 @@ const TotalCustomers = (props) => {
                 </Grid>
                 <Grid item>
                   <CancelIcon
-                    onClick={(e) => handleCancelOrder(e, props.order.orderID)}
+                    onMouseOver={(e) => changeOnHover(e)}
+                    onClick={(e) => handleOpenCancelOrderRemark()}
                   />
                 </Grid>
               </Grid>
               <Grid item>
-                <Grid container justify="center" spacing={6}>
+                <Grid container justify="center" spacing={4}>
                   <Grid item>
                     <Typography color="textPrimary" variant="h4">
                       {props.order.quantity}{' '}
@@ -197,6 +269,47 @@ const TotalCustomers = (props) => {
       {props.userdata && props.userdata.isDriver && (
         <div>
           <Dialog
+            open={openCancelRemark}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            onClose={handleCloseCancelOrderRemark}
+          >
+            <DialogTitle>Add Remarks</DialogTitle>
+            <DialogContent>
+              <form className={classes.container}>
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    fullWidth
+                    label="Remarks"
+                    margin="normal"
+                    name="cancelRemarks"
+                    variant="outlined"
+                    required
+                    onChange={(e) => setCancelRemark(e.target.value)}
+                  />
+                </FormControl>
+              </form>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onMouseOver={(e) => changeOnHover(e)}
+                onClick={(e) => handleCloseCancelOrderRemark()}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button
+                onMouseOver={(e) => changeOnHover(e)}
+                onClick={(e) =>
+                  handleCancelOrder(e, props.order.orderID, 'Driver')
+                }
+                color="primary"
+              >
+                Ok
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
             open={openSuccess}
             /*  onClose={this.handleClose} */
             aria-labelledby="alert-dialog-title"
@@ -236,7 +349,10 @@ const TotalCustomers = (props) => {
                 <Chip color="secondary" label="In-Progress" size="small" />
               </Grid>
               <Grid item>
-                <CancelIcon />
+                <CancelIcon
+                  onMouseOver={(e) => changeOnHover(e)}
+                  onClick={(e) => handleOpenCancelOrderRemark()}
+                />
               </Grid>
             </Grid>
 
@@ -286,7 +402,22 @@ const TotalCustomers = (props) => {
               </Grid>
             )}
             {validationState === 2 && (
-              <Grid container justify="space-between">
+              <Grid
+                container="true"
+                direction="row"
+                justify="space-between"
+                spacing={1}
+              >
+                <Grid item>
+                  <TextField
+                    name="otp"
+                    label="OTP"
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) => setOTP(e.target.value)}
+                    style={{ width: '50%' }}
+                  />
+                </Grid>
                 <Grid item>
                   <Button
                     color="primary"
@@ -297,37 +428,10 @@ const TotalCustomers = (props) => {
                     Verify OTP
                   </Button>
                 </Grid>
-                <Grid item>
-                  <TextField
-                    name="otp"
-                    label="OTP"
-                    variant="outlined"
-                    size="small"
-                    onChange={(e) => setOTP(e.target.value)}
-
-                    /* style={{ width: '25%' }} */
-                  />
-                </Grid>
               </Grid>
             )}
             {validationState === 3 && (
-              <Grid container justify="space-between" spacing={4}>
-                <Grid item>
-                  <Button
-                    color="primary"
-                    size="small"
-                    onClick={() =>
-                      handleCompleteOrder(
-                        actualQuant,
-                        deliveryCharge,
-                        props.order.orderID
-                      )
-                    }
-                    variant="contained"
-                  >
-                    Complete Order
-                  </Button>
-                </Grid>
+              <Grid container justify="space-between" spacing={2}>
                 <Grid item>
                   <TextField
                     name="actualQuantity"
@@ -346,8 +450,24 @@ const TotalCustomers = (props) => {
                     variant="outlined"
                     size="small"
                     onChange={(e) => setDeliveryCharge(e.target.value)}
-                    style={{ width: '25%' }}
+                    notched="true"
                   />
+                </Grid>
+                <Grid item>
+                  <Button
+                    color="primary"
+                    size="small"
+                    onClick={() =>
+                      handleCompleteOrder(
+                        actualQuant,
+                        deliveryCharge,
+                        props.order.orderID
+                      )
+                    }
+                    variant="contained"
+                  >
+                    Complete Order
+                  </Button>
                 </Grid>
               </Grid>
             )}

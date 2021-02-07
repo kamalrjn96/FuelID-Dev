@@ -68,32 +68,16 @@ export default function OrderDialog(props) {
 
   const [userData, setUserData] = useState(props.userData);
 
-  /*  useEffect(() => {
-    const fetchData = async () => {
-      const data = await userRef.get();
-
-      setUserData(data.data());
-    };
-    fetchData();
-  }, []); */
-
-  /* useEffect(() => {
-    userRef
-      .set(userData)
-      .then(function () {
-        console.log('Document successfully written!');
-      })
-      .catch(function (error) {
-        console.error('Error writing document: ', error);
-      });
-  }, [userData]); */
-
   const [userAddress, setUserAddress] = useState(
+    userData && userData.address ? userData.address : ''
+  );
+
+  const [displayAddress, setDisplayAddress] = useState(
     userData && userData.address ? userData.address[0].value : ''
   );
 
   const handleChange = (event) => {
-    setUserAddress(event.target.value);
+    setDisplayAddress(event.target.value);
   };
 
   const random = Math.floor(1000 + Math.random() * 9000);
@@ -114,7 +98,7 @@ export default function OrderDialog(props) {
         customerName: currentUser.displayName,
         mobileNumber: userData.mobileNumber,
         created: Date.now(),
-        addressValue: userAddress,
+        addressValue: displayAddress,
         OTP: Math.floor(1000 + Math.random() * 9000)
       })
       .then(function () {
@@ -154,6 +138,9 @@ export default function OrderDialog(props) {
       newAddressArray = [{ id: uuidv4(), tag: newTag, value: newAddress }];
     }
 
+    setUserAddress(newAddressArray);
+
+    setDisplayAddress(newAddressArray[newAddressArray.length - 1].value);
     let newUserData = {
       ...userData,
       address: newAddressArray
@@ -222,7 +209,7 @@ export default function OrderDialog(props) {
                 {''}
               </Typography>
               <Typography color="textPrimary" variant="h4">
-                {userAddress}
+                {displayAddress}
               </Typography>
             </Grid>
           </Grid>
@@ -239,10 +226,10 @@ export default function OrderDialog(props) {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    defaultValue={userData.address[0].tag}
+                    defaultValue={'Kamal'}
                     onChange={handleChange}
                   >
-                    {userData.address.map((item) => {
+                    {userAddress.map((item) => {
                       return (
                         <MenuItem key={item.tag} value={item.value}>
                           {item.tag}

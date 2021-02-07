@@ -67,14 +67,9 @@ const RegisterView = () => {
           .updateProfile({
             displayName: `${firstName} ${lastName}`
           })
-          .then(
-            function () {
-              console.log('Name Updated');
-            },
-            function (error) {
-              setError(error);
-            }
-          );
+          .then(function () {
+            console.log('Name Updated');
+          });
 
         return db.collection('users').doc(cred.user.uid).set({
           isCustomer: true,
@@ -113,7 +108,6 @@ const RegisterView = () => {
               margin="normal"
               name="firstName"
               variant="outlined"
-              
               onChange={(e) => setfirstName(e.target.value)}
             />
             <TextField
@@ -122,7 +116,6 @@ const RegisterView = () => {
               margin="normal"
               name="LastName"
               variant="outlined"
-              
               onChange={(e) => setlastName(e.target.value)}
             />
             <TextField
