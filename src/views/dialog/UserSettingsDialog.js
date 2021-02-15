@@ -64,8 +64,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserSettingsDialog(props) {
   const classes = useStyles();
-  const [price, setPrice] = useState(92);
-  const { currentUser } = useAuth();
+  const [price, setPrice] = useState(props.price);
+  const [error, setError] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [minQuantity, setMinQuantity] = useState(0);
+  const [startingStock, setStartingStock] = useState(0);
+  const [maxFutureDay, setMaxFutureDay] = useState(0);
 
   let currentPriceRef;
 
@@ -74,95 +78,152 @@ export default function UserSettingsDialog(props) {
   useEffect(() => {
     return currentPriceRef.onSnapshot(function (doc) {
       if (doc) {
+        console.log(doc.data());
         doc.data() && setPrice(doc.data().price);
+        doc.data() && setMinQuantity(doc.data().minQuantity);
+        doc.data() && setStartingStock(doc.data().startingStock);
+        doc.data() && setMaxFutureDay(doc.data().maxFutureDay);
       }
     });
   }, []);
 
-  var userRef;
-  if (currentUser) {
-    userRef = db.collection('users').doc(currentUser.uid);
-  }
+  const closeDrawer = () => {
+    return props.closeOrder;
+  };
+  const handleChange = (name, value) => {
+    switch (name) {
+      case 'fuelPrice':
+        if (isNaN(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            fuelPrice: {
+              // object that we want to update
 
-  const [userData, setUserData] = useState();
+              message: 'Price has to be a valid number' // update the value of specific key
+            }
+          }));
+        }
+        if (!isNaN(value) && !Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            fuelPrice: {
+              // object that we want to update
+              message: 'Price cannot be 0' // update the value of specific key
+            }
+          }));
+        }
+        if (!isNaN(value) && !!Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            fuelPrice: null
+          }));
+          setPrice(value);
+        }
+        break;
+      case 'startingStock':
+        if (isNaN(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            startingStock: {
+              // object that we want to update
 
-  /* useEffect(() => {
-    const fetchData = async () => {
-      const data = await userRef.get();
+              message: 'Stock has to be a valid number' // update the value of specific key
+            }
+          }));
+        }
+        if (!isNaN(value) && !Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            startingStock: {
+              // object that we want to update
+              message: 'Stock cannot be 0' // update the value of specific key
+            }
+          }));
+        }
+        if (!isNaN(value) && !!Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            startingStock: null
+          }));
+          setStartingStock(value);
+        }
+        break;
+      case 'minQuantity':
+        if (isNaN(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            minQuantity: {
+              // object that we want to update
 
-      setUserData(data.data());
-      data.data() &&
-        data.data().address &&
-        setInputFields(
-          data.data().address.map((address) => {
-            return { id: address.id, tag: address.tag, value: address.value };
-          })
-        );
-      console.log(userData);
-    };
-    fetchData();
-  }, []); */
+              message: 'Quantity has to be a valid number' // update the value of specific key
+            }
+          }));
+        }
+        if (!isNaN(value) && !Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            minQuantity: {
+              // object that we want to update
+              message: 'Minimum Quantity cannot be 0' // update the value of specific key
+            }
+          }));
+        }
+        if (!isNaN(value) && !!Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            minQuantity: null
+          }));
+          setMinQuantity(value);
+        }
+        break;
+      case 'maxFutureDay':
+        if (isNaN(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            maxFutureDay: {
+              // object that we want to update
 
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [minQuantity, setMinQuantity] = useState(0);
-  const [lastName, setlastName] = useState(
-    currentUser.displayName.split(' ')[1]
-  );
+              message: 'PLease provide valid number' // update the value of specific key
+            }
+          }));
+        }
 
-  const [mobileNumber, setmobileNumber] = useState();
+        if (!isNaN(value) && !!Number(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            maxFutureDay: null
+          }));
+          setMaxFutureDay(value);
+        }
+        break;
+      default:
+        break;
+    }
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (minQuantity === 0) {
-      return setError('Minimum Quantity Cannot be 0');
-    }
-
-    if (mobileNumber && typeof mobileNumber !== 'undefined') {
-      let pattern = new RegExp(/^[0-9\b]+$/);
-      if (!pattern.test(mobileNumber)) {
-        return setError('Please enter only number');
-      } else if (mobileNumber.length !== 10) {
-        return setError('Please enter valid phone number');
-      }
-    }
-
     try {
-      setError('');
-      setLoading(true);
-
-      // Updates the user attributes:
-
-      currentUser
-        .updateProfile({
-          displayName: ` ${lastName}`
+      db.collection('priceForTheDay')
+        .doc('e8kgvrn1XGzqM4JYAG3X')
+        .update({
+          price: parseInt(price),
+          lastUpdated: Date.now(),
+          minQuantity: minQuantity,
+          maxFutureDay: maxFutureDay,
+          startingStock: startingStock
         })
-        .then(
-          function () {
-            console.log('Name Updated');
-          },
-          function (error) {
-            setError(error);
-          }
-        );
-
-      let newUserData = {
-        ...userData,
-        mobileNumber: mobileNumber ? mobileNumber : userData.mobileNumber
-      };
-      console.log(newUserData);
-      return db
-        .collection('users')
-        .doc(currentUser.uid)
-        .set(newUserData)
-        .then(() => props.closeOrder());
+        .then(function () {
+          console.log('Document successfully written!');
+        });
     } catch (err) {
       console.log(err);
-      setError('Failed to Update account');
+      console.log('Failed to get user data');
     }
 
     setLoading(false);
+    props.closeOrder();
   }
   return (
     <div>
@@ -179,7 +240,7 @@ export default function UserSettingsDialog(props) {
                 Update settings
               </Typography>
             </Box>
-            {error && <Alert severity="error">{error}</Alert>}
+            {/*  {error && <Alert severity="error">{error}</Alert>} */}
             <form className={classes.root} noValidate>
               <TextField
                 fullWidth
@@ -189,28 +250,42 @@ export default function UserSettingsDialog(props) {
                 variant="outlined"
                 required
                 defaultValue={price}
-                onChange={(e) => setlastName(e.target.value)}
+                onChange={(e) => handleChange(e.target.name, e.target.value)}
               />
-              <TextField
-                fullWidth
-                label="Starting Stock"
-                margin="normal"
-                name="startingStock"
-                variant="outlined"
-                required
-                defaultValue={2000}
-                onChange={(e) => setlastName(e.target.value)}
-              />
-              <TextField
-                fullWidth
-                label="Minimum Quantity"
-                margin="normal"
-                name="minQuantity"
-                variant="outlined"
-                required
-                type="number"
-                onChange={(e) => setMinQuantity(e.target.value)}
-              />
+              {error && error.fuelPrice && (
+                <Alert severity="error">{error.fuelPrice.message}</Alert>
+              )}
+              {startingStock && (
+                <TextField
+                  fullWidth
+                  label="Starting Stock"
+                  margin="normal"
+                  name="startingStock"
+                  variant="outlined"
+                  required
+                  defaultValue={startingStock}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                />
+              )}
+              {error && error.startingStock && (
+                <Alert severity="error">{error.startingStock.message}</Alert>
+              )}
+              {minQuantity && (
+                <TextField
+                  fullWidth
+                  label="Minimum Quantity"
+                  margin="normal"
+                  name="minQuantity"
+                  variant="outlined"
+                  required
+                  type="number"
+                  defaultValue={minQuantity}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                />
+              )}
+              {error && error.minQuantity && (
+                <Alert severity="error">{error.minQuantity.message}</Alert>
+              )}
 
               <div>
                 <TextField
@@ -220,7 +295,8 @@ export default function UserSettingsDialog(props) {
                   name="vehicleNumber"
                   variant="outlined"
                   required
-                  onChange={(e) => setmobileNumber(e.target.value)}
+                  disabled
+                  /* onChange={(e) => setmobileNumber(e.target.value)} */
                 />
                 <TextField
                   fullWidth
@@ -229,17 +305,26 @@ export default function UserSettingsDialog(props) {
                   name="driverName"
                   variant="outlined"
                   required
-                  onChange={(e) => setmobileNumber(e.target.value)}
+                  disabled
+                  /* onChange={(e) => setmobileNumber(e.target.value)} */
                 />
-                <TextField
-                  fullWidth
-                  label="Advanced booking limit(days)"
-                  margin="normal"
-                  name="maxFutureDay"
-                  variant="outlined"
-                  required
-                  onChange={(e) => setmobileNumber(e.target.value)}
-                />
+                {maxFutureDay && (
+                  <TextField
+                    fullWidth
+                    label="Advanced booking limit(days)"
+                    margin="normal"
+                    name="maxFutureDay"
+                    variant="outlined"
+                    required
+                    defaultValue={maxFutureDay}
+                    onChange={(e) =>
+                      handleChange(e.target.name, e.target.value)
+                    }
+                  />
+                )}
+                {error && error.maxFutureDay && (
+                  <Alert severity="error">{error.maxFutureDay.message}</Alert>
+                )}
               </div>
             </form>
           </Container>

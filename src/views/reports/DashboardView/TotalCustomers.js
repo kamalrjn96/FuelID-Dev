@@ -72,6 +72,7 @@ const TotalCustomers = (props) => {
   const [actualAmount, setActualAmount] = useState(0);
   const [otp, setOTP] = useState();
   const [openSuccess, setOpenSuccess] = useState(false);
+
   const [openFailed, setOpenFailed] = useState(false);
   const [openCancelRemark, setOpenCancelRemark] = useState(false);
   const [cancelRemark, setCancelRemark] = useState('');
@@ -155,6 +156,7 @@ const TotalCustomers = (props) => {
         cancelRemark: cancelRemark
       })
       .then(function () {
+        props.openNotification();
         console.log('Document successfully written!');
       })
       .catch(function (error) {
@@ -176,7 +178,12 @@ const TotalCustomers = (props) => {
           >
             <DialogTitle>Add Remarks</DialogTitle>
             <DialogContent>
-              <form className={classes.container}>
+              <form
+                className={classes.container}
+                onSubmit={(e) =>
+                  handleCancelOrder(e, props.order.orderID, 'Customer')
+                }
+              >
                 <FormControl className={classes.formControl}>
                   <TextField
                     fullWidth
@@ -187,27 +194,29 @@ const TotalCustomers = (props) => {
                     required
                     onChange={(e) => setCancelRemark(e.target.value)}
                   />
+
+                  <DialogActions>
+                    <Button
+                      onMouseOver={(e) => changeOnHover(e)}
+                      onClick={(e) => handleCloseCancelOrderRemark()}
+                      color="primary"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onMouseOver={(e) => changeOnHover(e)}
+                      onClick={(e) =>
+                        handleCancelOrder(e, props.order.orderID, 'Customer')
+                      }
+                      color="primary"
+                      type="submit"
+                    >
+                      Ok
+                    </Button>
+                  </DialogActions>
                 </FormControl>
               </form>
             </DialogContent>
-            <DialogActions>
-              <Button
-                onMouseOver={(e) => changeOnHover(e)}
-                onClick={(e) => handleCloseCancelOrderRemark()}
-                color="primary"
-              >
-                Cancel
-              </Button>
-              <Button
-                onMouseOver={(e) => changeOnHover(e)}
-                onClick={(e) =>
-                  handleCancelOrder(e, props.order.orderID, 'Customer')
-                }
-                color="primary"
-              >
-                Ok
-              </Button>
-            </DialogActions>
           </Dialog>
           <CardContent>
             <Grid container justify="space-between" spacing={1}>
@@ -221,9 +230,16 @@ const TotalCustomers = (props) => {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <CancelIcon
+                  {/* <CancelIcon
                     onMouseOver={(e) => changeOnHover(e)}
                     onClick={(e) => handleOpenCancelOrderRemark()}
+                  /> */}
+                  <Chip
+                    color="secondary"
+                    onMouseOver={(e) => changeOnHover(e)}
+                    label="Cancel"
+                    onClick={(e) => handleOpenCancelOrderRemark()}
+                    size="small"
                   />
                 </Grid>
               </Grid>
@@ -276,7 +292,12 @@ const TotalCustomers = (props) => {
           >
             <DialogTitle>Add Remarks</DialogTitle>
             <DialogContent>
-              <form className={classes.container}>
+              <form
+                className={classes.container}
+                onSubmit={(e) =>
+                  handleCancelOrder(e, props.order.orderID, 'Driver')
+                }
+              >
                 <FormControl className={classes.formControl}>
                   <TextField
                     fullWidth
@@ -287,27 +308,29 @@ const TotalCustomers = (props) => {
                     required
                     onChange={(e) => setCancelRemark(e.target.value)}
                   />
+
+                  <DialogActions>
+                    <Button
+                      onMouseOver={(e) => changeOnHover(e)}
+                      onClick={(e) => handleCloseCancelOrderRemark()}
+                      color="primary"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onMouseOver={(e) => changeOnHover(e)}
+                      onClick={(e) =>
+                        handleCancelOrder(e, props.order.orderID, 'Driver')
+                      }
+                      color="primary"
+                      type="submit"
+                    >
+                      Ok
+                    </Button>
+                  </DialogActions>
                 </FormControl>
               </form>
             </DialogContent>
-            <DialogActions>
-              <Button
-                onMouseOver={(e) => changeOnHover(e)}
-                onClick={(e) => handleCloseCancelOrderRemark()}
-                color="primary"
-              >
-                Cancel
-              </Button>
-              <Button
-                onMouseOver={(e) => changeOnHover(e)}
-                onClick={(e) =>
-                  handleCancelOrder(e, props.order.orderID, 'Driver')
-                }
-                color="primary"
-              >
-                Ok
-              </Button>
-            </DialogActions>
           </Dialog>
           <Dialog
             open={openSuccess}
@@ -349,9 +372,15 @@ const TotalCustomers = (props) => {
                 <Chip color="secondary" label="In-Progress" size="small" />
               </Grid>
               <Grid item>
-                <CancelIcon
+                <Chip
+                  style={{
+                    backgroundColor: 'gray',
+                    color: 'white'
+                  }}
                   onMouseOver={(e) => changeOnHover(e)}
+                  label="Cancel"
                   onClick={(e) => handleOpenCancelOrderRemark()}
+                  size="small"
                 />
               </Grid>
             </Grid>

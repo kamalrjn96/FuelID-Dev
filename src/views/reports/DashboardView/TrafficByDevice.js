@@ -11,15 +11,18 @@ import {
   Typography,
   colors,
   makeStyles,
-  useTheme
+  useTheme,
+  Grid
 } from '@material-ui/core';
-import LaptopMacIcon from '@material-ui/icons/LaptopMac';
-import PhoneIcon from '@material-ui/icons/Phone';
-import TabletIcon from '@material-ui/icons/Tablet';
+import MoneyIcon from '@material-ui/icons/Money';
+import CreditCardIcon from '@material-ui/icons/CreditCard';
 
 const useStyles = makeStyles(() => ({
   root: {
     height: '100%'
+  },
+  gridRoot: {
+    flexGrow: '1'
   }
 }));
 
@@ -30,18 +33,14 @@ const TrafficByDevice = ({ className, ...rest }) => {
   const data = {
     datasets: [
       {
-        data: [63, 15, 22],
-        backgroundColor: [
-          colors.indigo[500],
-          colors.red[600],
-          colors.orange[600]
-        ],
+        data: [67, 33],
+        backgroundColor: [colors.green[500], colors.orange[600]],
         borderWidth: 8,
         borderColor: colors.common.white,
         hoverBorderColor: colors.common.white
       }
     ],
-    labels: ['Desktop', 'Tablet', 'Mobile']
+    labels: ['Cash', 'Credit']
   };
 
   const options = {
@@ -68,76 +67,63 @@ const TrafficByDevice = ({ className, ...rest }) => {
 
   const devices = [
     {
-      title: 'Desktop',
-      value: 63,
-      icon: LaptopMacIcon,
-      color: colors.indigo[500]
+      title: 'Cash',
+      value: 67,
+      icon: MoneyIcon,
+      color: colors.green[500]
     },
     {
-      title: 'Tablet',
-      value: 15,
-      icon: TabletIcon,
-      color: colors.red[600]
-    },
-    {
-      title: 'Mobile',
-      value: 23,
-      icon: PhoneIcon,
+      title: 'Credit',
+      value: 33,
+      icon: CreditCardIcon,
       color: colors.orange[600]
     }
   ];
 
   return (
-    <Card
-      className={clsx(classes.root, className)}
-      {...rest}
-    >
-      <CardHeader title="Traffic by Device" />
-      <Divider />
+    <Card className={clsx(classes.root, className)} {...rest}>
+      <CardHeader title="Monthly Earning" />
       <CardContent>
-        <Box
-          height={300}
-          position="relative"
+        <Grid
+          container
+          direction="row"
+          justify="center"
+          alignItems="center"
+          spacing={2}
         >
-          <Doughnut
-            data={data}
-            options={options}
-          />
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="center"
-          mt={2}
-        >
-          {devices.map(({
-            color,
-            icon: Icon,
-            title,
-            value
-          }) => (
-            <Box
-              key={title}
-              p={1}
-              textAlign="center"
-            >
-              <Icon color="action" />
-              <Typography
-                color="textPrimary"
-                variant="body1"
-              >
-                {title}
-              </Typography>
-              <Typography
-                style={{ color }}
-                variant="h2"
-              >
-                {value}
-                %
-              </Typography>
+          <Grid item>
+            <Typography color="textPrimary" variant="body1">
+              This Month
+            </Typography>
+            <Typography color="textPrimary" variant="body1">
+              <strong>35,34,242</strong>
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Box /* height={300} */ position="relative">
+              <Doughnut data={data} options={options} />
             </Box>
-          ))}
-        </Box>
+            <Box display="flex" justifyContent="center" mt={2}>
+              {devices.map(({ color, icon: Icon, title, value }) => (
+                <Box key={title} p={1} textAlign="center">
+                  <Icon color="action" />
+                  <Typography color="textPrimary" variant="body1">
+                    {title}
+                  </Typography>
+                  <Typography style={{ color }} variant="h2">
+                    {value}%
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
       </CardContent>
+      <Box display="flex" ml={2}>
+        <Typography color="primary" variant="caption">
+          Total value of Earnings for the month of Dec 2020 in Rupees
+        </Typography>
+      </Box>
     </Card>
   );
 };

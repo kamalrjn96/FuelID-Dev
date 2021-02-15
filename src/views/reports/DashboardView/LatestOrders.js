@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -20,71 +20,8 @@ import {
   Tooltip,
   makeStyles
 } from '@material-ui/core';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-
-const data = [
-  {
-    id: uuid(),
-    ref: 'CDD1049',
-    amount: 30.5,
-    customer: {
-      name: 'Ekaterina Tankova'
-    },
-    createdAt: 1555016400000,
-    status: 'pending'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1048',
-    amount: 25.1,
-    customer: {
-      name: 'Cao Yu'
-    },
-    createdAt: 1555016400000,
-    status: 'delivered'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1047',
-    amount: 10.99,
-    customer: {
-      name: 'Alexa Richardson'
-    },
-    createdAt: 1554930000000,
-    status: 'refunded'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1046',
-    amount: 96.43,
-    customer: {
-      name: 'Anje Keizer'
-    },
-    createdAt: 1554757200000,
-    status: 'pending'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1045',
-    amount: 32.54,
-    customer: {
-      name: 'Clarke Gillebert'
-    },
-    createdAt: 1554670800000,
-    status: 'delivered'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1044',
-    amount: 16.76,
-    customer: {
-      name: 'Adam Denisov'
-    },
-    createdAt: 1554670800000,
-    status: 'delivered'
-  }
-];
+import { DataGrid } from '@material-ui/data-grid';
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -95,100 +32,111 @@ const useStyles = makeStyles(() => ({
 
 const LatestOrders = (props) => {
   const classes = useStyles();
-  const [orders] = useState(data);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const updatedOrders = [];
+
+    updatedOrders.push(
+      ...props.orders.map((order) => {
+        order['id'] = order.orderID;
+
+        order['quantity'] =
+          order.orderStatus !== 1 ? order.deliveredQuantity : order.quantity;
+        order['completed'] = order.delivered
+          ? order.delivered
+          : order.cancelled;
+
+        return order;
+      })
+    );
+
+    setOrders(updatedOrders);
+  }, []);
 
   function changeOnHover(e) {
     e.target.style.cursor = 'pointer';
   }
 
+  const columns = [
+    { field: 'orderID', headerName: 'Order Ref', width: 120 },
+    { field: 'customerName', headerName: 'Customer name', width: 160 },
+    { field: 'addressValue', headerName: 'Location', width: 180 },
+    {
+      field: 'created',
+      headerName: 'Date Ordered',
+      type: 'date',
+      width: 160,
+      renderCell: (params) => moment(params.value).format('DD/MM/YYYY HH:mm')
+    },
+    {
+      field: 'completed',
+      headerName: 'Date Completed',
+      type: 'date',
+      width: 160,
+      renderCell: (params) =>
+        params.value ? moment(params.value).format('DD/MM/YYYY HH:mm') : ''
+    },
+
+    {
+      field: 'paymentType',
+      headerName: 'Payment Method',
+      renderCell: (params) => (params.value === 1 ? 'Cash' : 'Credit'),
+      width: 180
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity(Ltrs)',
+
+      width: 150
+    },
+    {
+      field: 'price',
+      headerName: 'Amount(Rs)',
+
+      width: 140
+    },
+    {
+      field: 'orderStatus',
+      headerName: 'Status',
+
+      width: 100,
+      renderCell: (params) => (
+        <Chip
+          color="primary"
+          label={
+            params.value === 1
+              ? 'In-Progress'
+              : params.value === 2
+              ? 'Delivered'
+              : 'Cancelled'
+          }
+          size="small"
+        />
+      )
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      sortable: false,
+      width: 120,
+      renderCell: () => (
+        <MoreVertIcon
+          color="primary"
+          size="small"
+          onMouseOver={(e) => changeOnHover(e)}
+        />
+      )
+    }
+  ];
+
   return (
     <Card className={clsx(classes.root)}>
-      {/* <CardHeader title="Order History" /> */}
-      <Divider />
-      <PerfectScrollbar>
-        <Box minWidth={800}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order Ref</TableCell>
-                {props.userdata && props.userdata.isDriver && (
-                  <TableCell>Customer name</TableCell>
-                )}
-                {props.userdata && props.userdata.isOwner && (
-                  <TableCell>Customer name</TableCell>
-                )}
-                <TableCell>Location</TableCell>
-                <TableCell>Date Ordered</TableCell>
-                <TableCell>Date Completed</TableCell>
-                <TableCell>Payment Method</TableCell>
-
-                <TableCell>Quantity(Ltrs)</TableCell>
-
-                <TableCell>Amount(Rs)</TableCell>
-
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.orders.map((order) => (
-                <TableRow key={order.orderID}>
-                  <TableCell>{order.orderID}</TableCell>
-                  {props.userdata && props.userdata.isDriver && (
-                    <TableCell>{order.customerName}</TableCell>
-                  )}
-                  {props.userdata && props.userdata.isOwner && (
-                    <TableCell>{order.customerName}</TableCell>
-                  )}
-                  <TableCell>
-                    {order.addressValue ? order.addressValue : 'Address'}
-                  </TableCell>
-                  <TableCell>
-                    {moment(order.created).format('DD/MM/YYYY HH:mm')}
-                  </TableCell>
-                  <TableCell>
-                    {order.orderStatus !== 1
-                      ? moment(order.delivered).format('DD/MM/YYYY HH:mm')
-                      : ''}
-                  </TableCell>
-                  <TableCell>
-                    {order.paymentType === 1 ? 'Cash' : 'Credit'}
-                  </TableCell>
-
-                  <TableCell>
-                    {order.orderStatus !== 1
-                      ? order.deliveredQuantity
-                      : order.quantity}
-                  </TableCell>
-
-                  <TableCell>{order.price}</TableCell>
-
-                  <TableCell>
-                    <Chip
-                      color="primary"
-                      label={
-                        order.orderStatus === 1
-                          ? 'In-Progress'
-                          : order.orderStatus === 2
-                          ? 'Delivered'
-                          : 'Cancelled'
-                      }
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <MoreVertIcon
-                      color="primary"
-                      size="small"
-                      onMouseOver={(e) => changeOnHover(e)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Box>
-      </PerfectScrollbar>
+      {orders && orders.length !== 0 && (
+        <div style={{ height: 400, width: '100%' }}>
+          <DataGrid rows={orders} columns={columns} pageSize={10} />
+        </div>
+      )}
     </Card>
   );
 };

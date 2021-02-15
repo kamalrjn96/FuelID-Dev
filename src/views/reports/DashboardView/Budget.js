@@ -127,7 +127,7 @@ const Budget = (props) => {
           <CardContent>
             <Grid container justify="space-between" spacing={3}>
               <Grid item>
-                <Typography color="textSecondary" gutterBottom variant="h3">
+                <Typography color="textSecondary" gutterBottom variant="h6">
                   Today's Price
                 </Typography>
                 <Typography color="textPrimary" variant="h3">
@@ -174,6 +174,7 @@ const Budget = (props) => {
                 <OrderDialog
                   price={props.price}
                   userData={props.userData}
+                  minQuantity={props.minQuantity}
                   closeOrder={handleCloseOrder}
                 ></OrderDialog>
               </Dialog>
@@ -187,16 +188,19 @@ const Budget = (props) => {
           <CardContent>
             <Grid container justify="space-between" spacing={3}>
               <Grid item>
-                <Typography color="textSecondary" gutterBottom variant="h3">
-                  Today's Price
+                <Typography color="textSecondary" gutterBottom variant="h6">
+                  Selling price today
                 </Typography>
                 <Typography color="textPrimary" variant="h3">
                   {props.price}
+                  {'  '}
+                  <Typography color="textSecondary" variant="caption">
+                    <i className="fas fa-rupee-sign"></i> / Litre
+                  </Typography>
                 </Typography>
               </Grid>
 
               <Box
-                mt={4}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -215,11 +219,6 @@ const Budget = (props) => {
                 </Button>
               </Box>
             </Grid>
-            <Box mt={2} display="flex" alignItems="center">
-              <Typography color="textSecondary" variant="caption">
-                <i className="fas fa-rupee-sign"></i> / Litre
-              </Typography>
-            </Box>
           </CardContent>
 
           <div>

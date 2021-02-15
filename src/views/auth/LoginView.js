@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { A, navigate } from 'hookrouter';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 const LoginView = () => {
   const classes = useStyles();
-  const navigate = useNavigate();
+  /* const navigate = useNavigate(); */
   const emailRef = useRef('');
   const passwordRef = useRef('');
   const { login } = useAuth();
@@ -51,7 +52,7 @@ const LoginView = () => {
       setLoading(true);
       await login(email, password);
       loadState();
-      navigate('/app/dashboard', { replace: true });
+      navigate('/app/dashboard', true);
     } catch {
       setError('Failed to log in');
     }
@@ -165,9 +166,9 @@ const LoginView = () => {
                 <Grid item>
                   <Typography color="textSecondary" variant="body1">
                     Don&apos;t have an account?{' '}
-                    <Link component={RouterLink} to="/register" variant="h6">
+                    <A href="/register" variant="h6">
                       Sign up
-                    </Link>
+                    </A>
                   </Typography>
                 </Grid>
               </Grid>

@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto'
   },
   footer: {
-    padding: theme.spacing(3, 2),
+    padding: theme.spacing(1.5, 1),
     marginTop: 'auto',
     backgroundColor:
       theme.palette.type === 'light'
@@ -45,35 +45,26 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const DashboardLayout = () => {
+const DashboardLayout = ({ children }) => {
   const classes = useStyles();
   const { currentUser } = useAuth();
   const [isMobileNavOpen, setMobileNavOpen] = useState(false);
 
-  /*  var userRef;
-  if (currentUser) {
-    userRef = db.collection('users').doc(currentUser.uid);
-  } */
-
   const [userData, setUserData] = useState();
+  const [price, setPrice] = useState(92);
+
+  const currentPriceRef = db
+    .collection('priceForTheDay')
+    .doc('e8kgvrn1XGzqM4JYAG3X');
 
   /*   useEffect(() => {
-    try {
-      db.collection('users')
-        .doc(currentUser.uid)
-        .get()
-        .then(function (doc) {
+        return currentPriceRef.onSnapshot(function (doc) {
           if (doc) {
-            setUserData(doc.data());
-            console.log(doc.data());
+            doc.data() && setPrice(doc.data().price);
           }
         });
-    } catch (err) {
-      console.log(err);
-      console.log('Failed to get user data');
-    }
-  }, [currentUser]);
- */
+      }, []); */
+
   useEffect(() => {
     try {
       db.collection('users')
@@ -83,6 +74,12 @@ const DashboardLayout = () => {
       console.log(err);
       console.log('Failed to Update user data');
     }
+
+    return currentPriceRef.onSnapshot(function (doc) {
+      if (doc) {
+        doc.data() && setPrice(doc.data().price);
+      }
+    });
   }, []);
 
   return (
@@ -91,8 +88,11 @@ const DashboardLayout = () => {
         onMobileNavOpen={() => setMobileNavOpen(true)}
         userData={userData}
         updateUserData={setUserData}
+        price={price}
+        setPrice={setPrice}
       />
 
+      {userData && userData.isOwner !== undefined && <p>HI</p>}
       {/* <NavBar
         onMobileClose={() => setMobileNavOpen(false)}
         openMobile={isMobileNavOpen}
@@ -100,17 +100,13 @@ const DashboardLayout = () => {
       <div className={classes.wrapper}>
         <div className={classes.contentContainer}>
           <div className={classes.content}>
-            <Outlet />
+            {/* <Outlet /> */}
+            {children}
             <footer className={classes.footer}>
               <Container /*  maxWidth="sm" */>
-                <Grid container justify="space-between" className={classes.pos}>
+                <Grid container justify="center" className={classes.pos}>
                   <Grid item>
-                    <Typography color="textPrimary" variant="h6">
-                      SHAKTHI GANAPATHI FUEL STATION
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography color="textSecondary" variant="caption">
+                    <Typography style={{ color: 'black' }} variant="caption">
                       Phone : 9008761088 | Email : r6mesh@gmail.com | Toll Free
                       No : 1800 2333 555
                     </Typography>

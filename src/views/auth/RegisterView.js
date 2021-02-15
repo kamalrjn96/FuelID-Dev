@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { A, navigate } from 'hookrouter';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 const RegisterView = () => {
   const classes = useStyles();
-  const navigate = useNavigate();
+  /* const navigate = useNavigate(); */
   const { signup } = useAuth();
   const { currentUser } = useAuth();
   const [error, setError] = useState('');
@@ -176,9 +177,9 @@ const RegisterView = () => {
           </form>
           <Typography color="textSecondary" variant="body1">
             Have an account?{' '}
-            <Link component={RouterLink} to="/login" variant="h6">
+            <A /* component={RouterLink} */ href="/login" variant="h6">
               Sign in
-            </Link>
+            </A>
           </Typography>
         </Container>
       </Box>

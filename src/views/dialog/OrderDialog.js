@@ -8,7 +8,12 @@ import {
   Button,
   Chip
 } from '@material-ui/core';
-
+import DateFnsUtils from '@date-io/date-fns';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker
+} from '@material-ui/pickers';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -58,6 +63,9 @@ export default function OrderDialog(props) {
   const [remarks, setRemarks] = useState('');
   const [newTag, setnewTag] = useState();
   const [newAddress, setnewAddress] = useState();
+  const [selectedDate, setSelectedDate] = useState(
+    new Date('2014-08-18T21:11:54')
+  );
 
   const { currentUser } = useAuth();
 
@@ -274,12 +282,27 @@ export default function OrderDialog(props) {
                   label="Qty"
                   onChange={(e) => setQuant(e.target.value)}
                   type="number"
-                  min="50"
-                  max="600"
+                  min={props.minQuantity}
+                  defaultValue={props.minQuantity}
                 />
                 <FormHelperText>Choose Quantity</FormHelperText>
               </FormControl>
             </Grid>
+            {/* <Grid item>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  margin="normal"
+                  id="date-picker-dialog"
+                  label="Date picker dialog"
+                  format="MM/dd/yyyy"
+                  value={selectedDate}
+                   onChange={handleDateChange} 
+                  KeyboardButtonProps={{
+                    'aria-label': 'change date'
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+            </Grid> */}
             <Grid item>
               <FormControl className={classes.formControl}>
                 <TextField
