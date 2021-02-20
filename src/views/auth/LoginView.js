@@ -33,7 +33,7 @@ const LoginView = () => {
   /* const navigate = useNavigate(); */
   const emailRef = useRef('');
   const passwordRef = useRef('');
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [email, setemail] = useState(false);
@@ -61,15 +61,17 @@ const LoginView = () => {
   }
 
   return (
-    <Page className={classes.root} title="Login">
-      <Box
-        display="flex"
-        flexDirection="column"
-        height="100%"
-        justifyContent="center"
-      >
-        <Container maxWidth="sm">
-          {/* <Formik
+    <>
+      {!currentUser ? (
+        <Page className={classes.root} title="Login">
+          <Box
+            display="flex"
+            flexDirection="column"
+            height="100%"
+            justifyContent="center"
+          >
+            <Container maxWidth="sm">
+              {/* <Formik
             initialValues={{
               email: '',
               password: ''
@@ -107,79 +109,83 @@ const LoginView = () => {
                   }))
                 } 
               > */}
-          <Box mb={3}>
-            <Typography color="textPrimary" variant="h2">
-              Sign in
-            </Typography>
-          </Box>
-          {error && <Alert severity="error">{error}</Alert>}
-          <form className="form" noValidate>
-            <TextField
-              /*  error={Boolean(touched.email && errors.email)} */
-              fullWidth
-              /* helperText={touched.email && errors.email} */
-              label="Email Address"
-              margin="normal"
-              name="email"
-              /* onBlur={handleBlur}
-                  onChange={handleChange} */
-              type="email"
-              required
-              variant="outlined"
-              innerRef={emailRef}
-              onChange={(e) => setemail(e.target.value)}
-            />
-            <TextField
-              /* error={Boolean(touched.password && errors.password)} */
-              fullWidth
-              /* helperText={touched.password && errors.password} */
-              label="Password"
-              margin="normal"
-              name="password"
-              /* onBlur={handleBlur}
-                  onChange={handleChange} */
-              type="password"
-              variant="outlined"
-              innerRef={passwordRef}
-              onChange={(e) => setpassword(e.target.value)}
-              required
-            />
+              <Box mb={3}>
+                <Typography color="textPrimary" variant="h2">
+                  Sign in
+                </Typography>
+              </Box>
+              {error && <Alert severity="error">{error}</Alert>}
+              <form className="form" noValidate>
+                <TextField
+                  /*  error={Boolean(touched.email && errors.email)} */
+                  fullWidth
+                  /* helperText={touched.email && errors.email} */
+                  label="Email Address"
+                  margin="normal"
+                  name="email"
+                  /* onBlur={handleBlur}
+                    onChange={handleChange} */
+                  type="email"
+                  required
+                  variant="outlined"
+                  innerRef={emailRef}
+                  onChange={(e) => setemail(e.target.value)}
+                />
+                <TextField
+                  /* error={Boolean(touched.password && errors.password)} */
+                  fullWidth
+                  /* helperText={touched.password && errors.password} */
+                  label="Password"
+                  margin="normal"
+                  name="password"
+                  /* onBlur={handleBlur}
+                    onChange={handleChange} */
+                  type="password"
+                  variant="outlined"
+                  innerRef={passwordRef}
+                  onChange={(e) => setpassword(e.target.value)}
+                  required
+                />
 
-            <Box my={2}>
-              <Button
-                color="primary"
-                disabled={loading}
-                fullWidth
-                size="large"
-                type="submit"
-                variant="contained"
-                onClick={handleSubmit}
-              >
-                Sign in now
-              </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Typography color="textSecondary" variant="body1">
-                    Don&apos;t have an account?{' '}
-                    <A href="/register" variant="h6">
-                      Sign up
-                    </A>
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Box>
-          </form>
-          {/* </form>
+                <Box my={2}>
+                  <Button
+                    color="primary"
+                    disabled={loading}
+                    fullWidth
+                    size="large"
+                    type="submit"
+                    variant="contained"
+                    onClick={handleSubmit}
+                  >
+                    Sign in now
+                  </Button>
+                  <Grid container>
+                    <Grid item xs>
+                      <A href="#" variant="body2">
+                        Forgot password?
+                      </A>
+                    </Grid>
+                    <Grid item>
+                      <Typography color="textSecondary" variant="body1">
+                        Don&apos;t have an account?{' '}
+                        <A href="/register" variant="body2">
+                          Sign up
+                        </A>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </form>
+              {/* </form>
             )}
           </Formik> */}
-        </Container>
-      </Box>
-    </Page>
+            </Container>
+          </Box>
+        </Page>
+      ) : (
+        navigate('/app/dashboard', true)
+      )}
+    </>
   );
 };
 
