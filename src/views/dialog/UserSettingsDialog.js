@@ -9,7 +9,7 @@ import {
   Chip,
   Container
 } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -70,6 +70,7 @@ export default function UserSettingsDialog(props) {
   const [minQuantity, setMinQuantity] = useState(0);
   const [startingStock, setStartingStock] = useState(0);
   const [maxFutureDay, setMaxFutureDay] = useState(0);
+  const [openSuccess, setOpenSuccess] = useState(false);
 
   let currentPriceRef;
 
@@ -87,9 +88,6 @@ export default function UserSettingsDialog(props) {
     });
   }, []);
 
-  const closeDrawer = () => {
-    return props.closeOrder;
-  };
   const handleChange = (name, value) => {
     switch (name) {
       case 'fuelPrice':
@@ -216,6 +214,12 @@ export default function UserSettingsDialog(props) {
         })
         .then(function () {
           console.log('Document successfully written!');
+          setOpenSuccess(true);
+
+          setTimeout(function () {
+            setOpenSuccess(false);
+            props.closeOrder();
+          }, 1000);
         });
     } catch (err) {
       console.log(err);
@@ -223,10 +227,21 @@ export default function UserSettingsDialog(props) {
     }
 
     setLoading(false);
-    props.closeOrder();
   }
   return (
     <div>
+      <Dialog
+        open={openSuccess}
+        /*  onClose={this.handleClose} */
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableBackdropClick
+      >
+        <Alert severity="success">
+          <AlertTitle>Success</AlertTitle>
+          <strong>Settings Updated</strong>
+        </Alert>
+      </Dialog>
       <DialogContent>
         <Box
           display="flex"

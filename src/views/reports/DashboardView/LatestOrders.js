@@ -18,9 +18,12 @@ import {
   TableRow,
   TableSortLabel,
   Tooltip,
-  makeStyles
+  makeStyles,
+  Container,
+  Menu,
+  MenuItem
 } from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { DataGrid } from '@material-ui/data-grid';
 
 const useStyles = makeStyles(() => ({
@@ -33,6 +36,17 @@ const useStyles = makeStyles(() => ({
 const LatestOrders = (props) => {
   const classes = useStyles();
   const [orders, setOrders] = useState([]);
+  const [row, setRow] = useState({});
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event, params) => {
+    setAnchorEl(event.currentTarget);
+    setRow(params.row);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     const updatedOrders = [];
@@ -57,6 +71,10 @@ const LatestOrders = (props) => {
   function changeOnHover(e) {
     e.target.style.cursor = 'pointer';
   }
+
+  const handleOrderDetails = (params) => {
+    console.log(params.row);
+  };
 
   const columns = [
     { field: 'orderID', headerName: 'Order Ref', width: 120 },
@@ -120,11 +138,12 @@ const LatestOrders = (props) => {
       headerName: 'Actions',
       sortable: false,
       width: 120,
-      renderCell: () => (
-        <MoreVertIcon
+      renderCell: (params) => (
+        <MoreHorizIcon
           color="primary"
           size="small"
           onMouseOver={(e) => changeOnHover(e)}
+          onClick={(e) => handleClick(e, params)}
         />
       )
     }
@@ -133,9 +152,24 @@ const LatestOrders = (props) => {
   return (
     <Card className={clsx(classes.root)}>
       {orders && orders.length !== 0 && (
-        <div style={{ height: 400, width: '100%' }}>
+        <Container style={{ height: 400, width: '100%' }}>
           <DataGrid rows={orders} columns={columns} pageSize={10} />
-        </div>
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={handleClose}>View Order details</MenuItem>
+            {row.orderStatus === 2 && (
+              <MenuItem onClick={() => console.log(row)}>View Invoice</MenuItem>
+            )}
+            {row.orderStatus === 2 && (
+              <MenuItem onClick={handleClose}>Download Invoice</MenuItem>
+            )}
+          </Menu>
+        </Container>
       )}
     </Card>
   );

@@ -18,9 +18,13 @@ import {
   TableRow,
   TableSortLabel,
   Tooltip,
-  makeStyles
+  makeStyles,
+  Menu,
+  MenuItem,
+  Grid,
+  Typography
 } from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { DataGrid } from '@material-ui/data-grid';
 
 const useStyles = makeStyles(() => ({
@@ -30,14 +34,30 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const LatestOrders = (props) => {
+const CustomerList = (props) => {
   const classes = useStyles();
   const [users, setUsers] = useState([]);
+  const [row, setRow] = useState({});
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event, params) => {
+    setAnchorEl(event.currentTarget);
+    setRow(params.row);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
+    console.log(props.users);
     const updatedUsers = [];
 
-    updatedUsers.push(...props.users.map((user) => {}));
+    updatedUsers.push(
+      ...props.users.map((user) => {
+        return user;
+      })
+    );
 
     setUsers(updatedUsers);
   }, []);
@@ -47,72 +67,43 @@ const LatestOrders = (props) => {
   }
 
   const columns = [
-    { field: 'id', headerName: 'Order Ref', width: 120 },
-    { field: 'customerName', headerName: 'Customer name', width: 160 },
-    { field: 'addressValue', headerName: 'Location', width: 180 },
+    { field: 'customerName', headerName: 'Name', width: 160 },
     {
-      field: 'created',
-      headerName: 'Date Ordered',
-      type: 'date',
+      field: 'mobileNumber',
+      headerName: 'Phone/Email',
       width: 160,
-      renderCell: (params) => moment(params.value).format('DD/MM/YYYY HH:mm')
-    },
-    {
-      field: 'completed',
-      headerName: 'Date Completed',
-      type: 'date',
-      width: 160,
-      renderCell: (params) =>
-        params.value ? moment(params.value).format('DD/MM/YYYY HH:mm') : ''
-    },
-
-    {
-      field: 'paymentType',
-      headerName: 'Payment Method',
-      renderCell: (params) => (params.value === 1 ? 'Cash' : 'Credit'),
-      width: 180
-    },
-    {
-      field: 'quantity',
-      headerName: 'Quantity(Ltrs)',
-
-      width: 150
-    },
-    {
-      field: 'price',
-      headerName: 'Amount(Rs)',
-
-      width: 140
-    },
-    {
-      field: 'orderStatus',
-      headerName: 'Status',
-
-      width: 100,
       renderCell: (params) => (
-        <Chip
-          color="primary"
-          label={
-            params.value === 1
-              ? 'In-Progress'
-              : params.value === 2
-              ? 'Delivered'
-              : 'Cancelled'
-          }
-          size="small"
-        />
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Typography color="textSecondary" gutterBottom variant="body2">
+            {params.row.mobileNumber}
+          </Typography>
+          <Typography color="textSecondary" gutterBottom variant="body2">
+            {params.row.email}
+          </Typography>
+        </Grid>
       )
     },
     {
+      field: 'addressValue',
+      headerName: 'Address',
+      width: 180,
+      renderCell: (params) => params.row.address && params.row.address[0].value
+    },
+    { field: 'creditLimit', headerName: 'Credit Limit', width: 180 },
+    { field: 'totalOrders', headerName: 'Total Orders', width: 180 },
+    { field: 'orderValue', headerName: 'Order Value', width: 180 },
+    { field: 'created', headerName: 'Customer Since', width: 180 },
+    {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: 'Action',
       sortable: false,
       width: 120,
-      renderCell: () => (
-        <MoreVertIcon
+      renderCell: (params) => (
+        <MoreHorizIcon
           color="primary"
           size="small"
           onMouseOver={(e) => changeOnHover(e)}
+          onClick={(e) => handleClick(e, params)}
         />
       )
     }
@@ -120,17 +111,28 @@ const LatestOrders = (props) => {
 
   return (
     <Card className={clsx(classes.root)}>
-      {orders && orders.length !== 0 && (
+      {users && users.length !== 0 && (
         <div style={{ height: 400, width: '100%' }}>
-          <DataGrid rows={orders} columns={columns} pageSize={10} />
+          <DataGrid rows={users} columns={columns} pageSize={10} />
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={() => console.log(row)}>
+              Edit User details
+            </MenuItem>
+          </Menu>
         </div>
       )}
     </Card>
   );
 };
 
-LatestOrders.propTypes = {
+CustomerList.propTypes = {
   className: PropTypes.string
 };
 
-export default LatestOrders;
+export default CustomerList;

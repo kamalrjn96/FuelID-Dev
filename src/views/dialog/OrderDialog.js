@@ -23,6 +23,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import { useAuth } from '../../contexts/AuthContext';
+import Alert from '@material-ui/lab/Alert';
 import { db } from '../../firebase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -58,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
 export default function OrderDialog(props) {
   const classes = useStyles();
 
-  const [quant, setQuant] = useState(0);
+  const [quant, setQuant] = useState(props.minQuantity);
   const [paymentType, setPaymentType] = useState(1);
   const [remarks, setRemarks] = useState('');
   const [newTag, setnewTag] = useState();
@@ -66,7 +67,7 @@ export default function OrderDialog(props) {
   const [selectedDate, setSelectedDate] = useState(
     new Date('2014-08-18T21:11:54')
   );
-
+  const [errors, setErrors] = useState([]);
   const { currentUser } = useAuth();
 
   var userRef;
@@ -168,6 +169,27 @@ export default function OrderDialog(props) {
     setOpenNewAddress(false);
   };
 
+  const handleQuant = (value) => {
+    console.log(
+      value,
+      props.minQuantity,
+      Number(value) < Number(props.minQuantity)
+    );
+    setQuant(value);
+    if (Number(value) < Number(props.minQuantity)) {
+      setErrors([`Minimum order quantity is ${props.minQuantity} litres`]);
+    }
+
+    if (Number(value) >= Number(props.minQuantity)) {
+      if (Number(value) * props.price > 10000) {
+        setErrors([`Credit Limit Exceeded`]);
+      }
+      if (Number(value) * props.price <= 10000) {
+        setErrors([]);
+      }
+    }
+  };
+
   return (
     <div>
       <DialogContent>
@@ -234,7 +256,7 @@ export default function OrderDialog(props) {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    defaultValue={'Kamal'}
+                    defaultValue={displayAddress}
                     onChange={handleChange}
                   >
                     {userAddress.map((item) => {
@@ -280,7 +302,7 @@ export default function OrderDialog(props) {
                   autoFocus
                   id="quantitySelect"
                   label="Qty"
-                  onChange={(e) => setQuant(e.target.value)}
+                  onChange={(e) => handleQuant(e.target.value)}
                   type="number"
                   min={props.minQuantity}
                   defaultValue={props.minQuantity}
@@ -399,8 +421,14 @@ export default function OrderDialog(props) {
           </Dialog>
         </div>
       </DialogContent>
+      {errors && errors.length > 0 && <Alert severity="error">{errors}</Alert>}
+
       <DialogActions>
-        <Button onClick={handlePlaceOrder} color="primary" disabled={!quant}>
+        <Button
+          onClick={handlePlaceOrder}
+          color="primary"
+          disabled={errors.length !== 0}
+        >
           Place Order
         </Button>
 

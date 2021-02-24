@@ -72,10 +72,15 @@ const RegisterView = () => {
             console.log('Name Updated');
           });
 
-        return db.collection('users').doc(cred.user.uid).set({
-          isCustomer: true,
-          mobileNumber: mobileNumber
-        });
+        return db
+          .collection('users')
+          .doc(cred.user.uid)
+          .set({
+            isCustomer: true,
+            mobileNumber: mobileNumber,
+            displayName: `${firstName} ${lastName}`,
+            email: email
+          });
       });
       navigate('/app/dashboard', { replace: true });
     } catch {

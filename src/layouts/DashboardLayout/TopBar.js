@@ -60,11 +60,13 @@ const TopBar = ({ className, onMobileNavOpen, userData, price, ...rest }) => {
   const [drawerState, setDrawerState] = useState(false);
 
   const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === 'keydown' &&
-      (event.key === 'Tab' || event.key === 'Shift')
-    ) {
-      return;
+    if (event) {
+      if (
+        event.type === 'keydown' &&
+        (event.key === 'Tab' || event.key === 'Shift')
+      ) {
+        return;
+      }
     }
 
     setDrawerState(open);

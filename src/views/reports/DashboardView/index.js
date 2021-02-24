@@ -23,6 +23,7 @@ import Box from '@material-ui/core/Box';
 import Page from 'src/components/Page';
 import Budget from './Budget';
 import LatestOrders from './LatestOrders';
+import CustomerList from './CustomerList';
 import LatestProducts from './LatestProducts';
 import Sales from './Sales';
 import TasksProgress from './TasksProgress';
@@ -557,11 +558,11 @@ const Dashboard = () => {
                 </Grid>
               </TabPanel>
               <TabPanel value={value} index={2}>
-                {/* <ul>
-                  {allUsers.map((user) => {
-                    return <li>{JSON.stringify(user)}</li>;
-                  })}
-                </ul> */}
+                {allUsers && allUsers.length > 0 && (
+                  <Grid item lg={12} md={12} xl={9} xs={12}>
+                    <CustomerList users={allUsers} />
+                  </Grid>
+                )}
               </TabPanel>
             </div>
           )}

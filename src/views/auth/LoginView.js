@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { A, navigate } from 'hookrouter';
 import * as Yup from 'yup';
@@ -16,6 +16,11 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import Alert from '@material-ui/lab/Alert';
 import Loading from '../../state/Loading';
+import Dialog from '@material-ui/core/Dialog';
+import FormControl from '@material-ui/core/FormControl';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import Page from 'src/components/Page';
 
@@ -25,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3)
+  },
+  scrollPaper: {
+    alignItems: 'baseline'
   }
 }));
 
@@ -33,11 +41,13 @@ const LoginView = () => {
   /* const navigate = useNavigate(); */
   const emailRef = useRef('');
   const passwordRef = useRef('');
-  const { login, currentUser } = useAuth();
+  const { login, resetPassword, currentUser } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [email, setemail] = useState(false);
+  const [resetEmail, setResetEmail] = useState(false);
   const [password, setpassword] = useState(false);
+  const [openPasswordReset, setOpenPasswordReset] = useState(false);
 
   const loadState = () => {
     return <Loading />;
@@ -60,6 +70,31 @@ const LoginView = () => {
     setLoading(false);
   }
 
+  async function handleReset() {
+    await resetPassword(resetEmail)
+      .then(() => {
+        window.alert(`Email has been sent to ${resetEmail}`);
+      })
+      .catch((error) => {
+        console.log(error.code, error.message);
+        window.alert(`${error.message} Enter Valid e-mail ID`);
+      });
+    setResetEmail();
+    handleClosePasswordReset();
+  }
+
+  const handleClosePasswordReset = () => {
+    setOpenPasswordReset(false);
+  };
+
+  const handleOpenPasswordReset = () => {
+    setOpenPasswordReset(true);
+  };
+
+  function changeOnHover(e) {
+    e.target.style.cursor = 'pointer';
+  }
+
   return (
     <>
       {!currentUser ? (
@@ -71,6 +106,49 @@ const LoginView = () => {
             justifyContent="center"
           >
             <Container maxWidth="sm">
+              <Dialog
+                open={openPasswordReset}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                onClose={handleClosePasswordReset}
+                className={classes.scrollPaper}
+              >
+                <DialogTitle>Enter Email ID to reset Password</DialogTitle>
+                <DialogContent>
+                  <form
+                    className={classes.container} /* onSubmit={handleReset} */
+                  >
+                    <FormControl className={classes.formControl}>
+                      <TextField
+                        fullWidth
+                        label="Remarks"
+                        margin="normal"
+                        name="cancelRemarks"
+                        variant="outlined"
+                        required
+                        onChange={(e) => setResetEmail(e.target.value)}
+                      />
+
+                      <DialogActions>
+                        <Button
+                          onMouseOver={(e) => changeOnHover(e)}
+                          onClick={(e) => handleClosePasswordReset()}
+                          color="primary"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onMouseOver={(e) => changeOnHover(e)}
+                          onClick={handleReset}
+                          color="primary"
+                        >
+                          Ok
+                        </Button>
+                      </DialogActions>
+                    </FormControl>
+                  </form>
+                </DialogContent>
+              </Dialog>
               {/* <Formik
             initialValues={{
               email: '',
@@ -161,9 +239,12 @@ const LoginView = () => {
                   </Button>
                   <Grid container>
                     <Grid item xs>
-                      <A href="#" variant="body2">
+                      {/* <A href="/forgotPassword" variant="body2">
                         Forgot password?
-                      </A>
+                      </A> */}
+                      <Button onClick={handleOpenPasswordReset}>
+                        Forgot password?
+                      </Button>
                     </Grid>
                     <Grid item>
                       <Typography color="textSecondary" variant="body1">
@@ -181,6 +262,54 @@ const LoginView = () => {
           </Formik> */}
             </Container>
           </Box>
+          {/* <Dialog
+            open={openPassword}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            onClose={handleCloseCancelOrderRemark}
+          >
+            <DialogTitle>Enter Email Address to reset Password</DialogTitle>
+            <DialogContent>
+              <form
+                className={classes.container}
+                onSubmit={(e) =>
+                  handleCancelOrder(e, props.order.orderID, 'Driver')
+                }
+              >
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    fullWidth
+                    label="Remarks"
+                    margin="normal"
+                    name="cancelRemarks"
+                    variant="outlined"
+                    required
+                    onChange={(e) => setCancelRemark(e.target.value)}
+                  />
+
+                  <DialogActions>
+                    <Button
+                      onMouseOver={(e) => changeOnHover(e)}
+                      onClick={(e) => handleCloseCancelOrderRemark()}
+                      color="primary"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onMouseOver={(e) => changeOnHover(e)}
+                      onClick={(e) =>
+                        handleCancelOrder(e, props.order.orderID, 'Driver')
+                      }
+                      color="primary"
+                      type="submit"
+                    >
+                      Ok
+                    </Button>
+                  </DialogActions>
+                </FormControl>
+              </form>
+            </DialogContent>
+          </Dialog> */}
         </Page>
       ) : (
         navigate('/app/dashboard', true)
