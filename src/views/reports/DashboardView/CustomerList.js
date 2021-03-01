@@ -67,7 +67,7 @@ const CustomerList = (props) => {
   }
 
   const columns = [
-    { field: 'customerName', headerName: 'Name', width: 160 },
+    { field: 'customerName', headerName: 'Name', width: 130 },
     {
       field: 'mobileNumber',
       headerName: 'Phone/Email',

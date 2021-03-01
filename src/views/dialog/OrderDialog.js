@@ -256,8 +256,9 @@ export default function OrderDialog(props) {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    defaultValue={displayAddress}
+                    /* defaultValue={displayAddress} */
                     onChange={handleChange}
+                    placeholder={displayAddress}
                   >
                     {userAddress.map((item) => {
                       return (

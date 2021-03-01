@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core';
+import { Container, Grid, makeStyles, Typography } from '@material-ui/core';
 import TopBar from './TopBar';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,6 +26,16 @@ const useStyles = makeStyles((theme) => ({
     flex: '1 1 auto',
     height: '100%',
     overflow: 'auto'
+  },
+  footer: {
+    padding: theme.spacing(1.5, 1),
+    marginTop: 'auto',
+    backgroundColor:
+      theme.palette.type === 'light'
+        ? theme.palette.grey[200]
+        : theme.palette.grey[800],
+    bottom: 0,
+    position: 'sticky'
   }
 }));
 
@@ -40,6 +50,18 @@ const MainLayout = ({ children }) => {
           <div className={classes.content}>
             {/* <Outlet /> */}
             {children}
+            <footer className={classes.footer}>
+              <Container /*  maxWidth="sm" */>
+                <Grid container justify="center" className={classes.pos}>
+                  <Grid item>
+                    <Typography style={{ color: 'black' }} variant="caption">
+                      Phone : 9008761088 | Email : r6mesh@gmail.com | Toll Free
+                      No : 1800 2333 555
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Container>
+            </footer>
           </div>
         </div>
       </div>

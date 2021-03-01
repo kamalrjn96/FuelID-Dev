@@ -121,12 +121,27 @@ const LatestOrders = (props) => {
       width: 100,
       renderCell: (params) => (
         <Chip
-          color="primary"
+          style={
+            params.value === 1
+              ? {
+                  backgroundColor: 'orange',
+                  color: 'white'
+                }
+              : params.value === 2
+              ? {
+                  backgroundColor: 'green',
+                  color: 'white'
+                }
+              : {
+                  backgroundColor: 'red',
+                  color: 'white'
+                }
+          }
           label={
             params.value === 1
-              ? 'In-Progress'
+              ? 'Pending'
               : params.value === 2
-              ? 'Delivered'
+              ? 'Fulfilled'
               : 'Cancelled'
           }
           size="small"

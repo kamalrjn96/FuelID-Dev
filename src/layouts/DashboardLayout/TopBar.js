@@ -31,8 +31,8 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 const theme = createMuiTheme();
 
-theme.typography.h3 = {
-  fontSize: '0.7rem',
+theme.typography.h2 = {
+  fontSize: '0.8rem',
   '@media (min-width:600px)': {
     fontSize: '1.2rem'
   },
@@ -114,8 +114,8 @@ const TopBar = ({ className, onMobileNavOpen, userData, price, ...rest }) => {
               SHAKTHI GANAPATHI FUEL STATION
             </Typography> */}
             <ThemeProvider theme={theme}>
-              <Typography style={{ color: 'white' }} variant="h3">
-                SHAKTHI GANAPATHI FUEL STATION
+              <Typography style={{ color: 'white' }} variant="h2">
+                Shakti Ganapathi Fuel Station
               </Typography>
             </ThemeProvider>
             <Box flexGrow={1} />
