@@ -15,6 +15,7 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+import moment from 'moment';
 import { useAuth } from '../../contexts/AuthContext';
 import Alert from '@material-ui/lab/Alert';
 import { db } from '../../firebase';
@@ -78,8 +79,9 @@ const RegisterView = () => {
           .set({
             isCustomer: true,
             mobileNumber: mobileNumber,
-            displayName: `${firstName} ${lastName}`,
-            email: email
+            customerName: `${firstName} ${lastName}`,
+            email: email,
+            created: moment(new Date()).format('MMM Do YYYY')
           });
       });
       navigate('/app/dashboard', { replace: true });

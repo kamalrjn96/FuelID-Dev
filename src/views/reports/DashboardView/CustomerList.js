@@ -71,9 +71,15 @@ const CustomerList = (props) => {
     {
       field: 'mobileNumber',
       headerName: 'Phone/Email',
-      width: 160,
+      width: 170,
+
       renderCell: (params) => (
-        <Grid container direction="column" justify="center" alignItems="center">
+        <Grid
+          container
+          direction="column"
+          justify="center"
+          alignItems="flex-start"
+        >
           <Typography color="textSecondary" gutterBottom variant="body2">
             {params.row.mobileNumber}
           </Typography>
@@ -90,8 +96,24 @@ const CustomerList = (props) => {
       renderCell: (params) => params.row.address && params.row.address[0].value
     },
     { field: 'creditLimit', headerName: 'Credit Limit', width: 180 },
-    { field: 'totalOrders', headerName: 'Total Orders', width: 180 },
-    { field: 'orderValue', headerName: 'Order Value', width: 180 },
+    {
+      field: 'totalOrders',
+      headerName: 'Total Orders',
+      width: 180,
+      renderCell: (params) =>
+        props.orders.filter((order) => order.userID === params.row.id).length
+    },
+    {
+      field: 'orderValue',
+      headerName: 'Order Value',
+      width: 180,
+      renderCell: (params) =>
+        props.orders
+          .filter((order) => order.userID === params.row.id)
+          .map((order) => Number(order.price))
+          .reduce((a, b) => a + b, 0)
+          .toLocaleString()
+    },
     { field: 'created', headerName: 'Customer Since', width: 180 },
     {
       field: 'actions',

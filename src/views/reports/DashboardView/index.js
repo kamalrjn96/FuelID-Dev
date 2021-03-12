@@ -8,6 +8,7 @@ import {
   Toolbar,
   Paper
 } from '@material-ui/core';
+import moment from 'moment';
 import MuiAlert from '@material-ui/lab/Alert';
 import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
@@ -53,6 +54,7 @@ const Dashboard = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState(92);
+  const [lastUpdated, setLastUpdated] = useState();
   const [minQuantity, setMinQuantity] = useState(0);
   const [startingStock, setStartingStock] = useState(0);
   const [maxFutureDay, setMaxFutureDay] = useState(0);
@@ -154,7 +156,6 @@ const Dashboard = () => {
         let userDataList = [];
         if (data) {
           data.forEach(function (doc) {
-            console.log(doc);
             userDataList.push({
               ...doc.data(),
               id: doc.Df.key.path.segments[6]
@@ -172,6 +173,7 @@ const Dashboard = () => {
           doc.data() && setMinQuantity(doc.data().minQuantity);
           doc.data() && setStartingStock(doc.data().startingStock);
           doc.data() && setMaxFutureDay(doc.data().maxFutureDay);
+          doc.data() && setLastUpdated(doc.data().lastUpdated);
         }
       });
     }, []);
@@ -305,37 +307,116 @@ const Dashboard = () => {
   };
 
   const date = new Date();
-  const month = date.toLocaleString('default', { month: 'long' });
+  const month = new Date().toLocaleString('default', { month: 'long' });
+
+  const getCompletedOrdersToday = () => {
+    let completedOrders = allOrderHistory
+      .filter((order) => order.orderStatus === 2)
+      .filter(
+        (order) =>
+          order.delivered &&
+          moment(order.delivered).format('DD/MM/YYYY') ===
+            moment(date).format('DD/MM/YYYY')
+      );
+
+    return completedOrders.length;
+  };
+
+  const getPendingOrders = () => {
+    let pendingOrders = allOrderHistory.filter(
+      (order) => order.orderStatus === 1
+    );
+
+    return pendingOrders.length;
+  };
+
+  const getThisMonthOrders = () => {
+    let thisMonthOrders = allOrderHistory
+      .filter((order) => order.orderStatus === 2)
+      .filter(
+        (order) =>
+          order.delivered && moment(order.delivered).format('MM') === '02' //moment(date).format('MM')
+      );
+    console.log(thisMonthOrders);
+    let thisMonthOrderValues = [];
+    let thisMonthCashOrderValues = [];
+    let thisMonthCreditOrderValues = [];
+    thisMonthOrders.forEach(
+      (order) => order.price && thisMonthOrderValues.push(Number(order.price))
+    );
+    console.log(thisMonthOrderValues);
+
+    thisMonthOrders
+      .filter((order) => order.paymentType === 1)
+      .forEach(
+        (order) =>
+          order.price && thisMonthCashOrderValues.push(Number(order.price))
+      );
+
+    thisMonthOrders
+      .filter((order) => order.paymentType === 2)
+      .forEach(
+        (order) =>
+          order.price && thisMonthCreditOrderValues.push(Number(order.price))
+      );
+
+    let total, cash, credit;
+    total =
+      thisMonthOrderValues.length > 0
+        ? thisMonthOrderValues.length === 1
+          ? thisMonthOrderValues[0]
+          : thisMonthOrderValues.reduce((a, b) => a + b, 0)
+        : 0;
+
+    cash =
+      thisMonthCashOrderValues.length > 0
+        ? thisMonthCashOrderValues.length === 1
+          ? thisMonthCashOrderValues[0]
+          : thisMonthCashOrderValues.reduce((a, b) => a + b, 0)
+        : 0;
+
+    credit =
+      thisMonthCreditOrderValues.length > 0
+        ? thisMonthCreditOrderValues.length === 1
+          ? thisMonthCreditOrderValues[0]
+          : thisMonthCreditOrderValues.reduce((a, b) => a + b, 0)
+        : 0;
+    return {
+      total,
+      cash,
+      credit
+    };
+  };
 
   const reports = [
     {
       title: 'Orders to be fulfilled',
-      value: 15,
+      value: getPendingOrders(),
       icon: <SystemUpdateAltIcon />
     },
     {
       title: 'Completed Orders Today',
-      value: 5,
+      value: getCompletedOrdersToday(),
       icon: <LocalOfferIcon />
     },
     {
       title: 'Cash Sales Today',
-      value: '1,35,723',
+      value: getThisMonthOrders().cash.toLocaleString(),
       icon: <SystemUpdateAltIcon />
     },
     {
       title: 'Credit Sales Today',
-      value: '87,273',
+      value: getThisMonthOrders().credit.toLocaleString(),
       icon: <LocalOfferIcon />
     },
     {
       title: `${month} Orders`,
-      value: '1,35,723',
+      value: getThisMonthOrders().total.toLocaleString(),
       icon: <InsertDriveFileIcon />
     },
     {
       title: `Opening Stock`,
-      value: '10,000 Ltrs',
+      value: startingStock,
       icon: <InvertColorsIcon />
     },
     {
@@ -488,12 +569,17 @@ const Dashboard = () => {
               <TabPanel value={value} index={0}>
                 <Grid container spacing={2}>
                   <Grid item xs lg={4}>
-                    <TrafficByDevice />
+                    <TrafficByDevice
+                      month={month}
+                      total={getThisMonthOrders().total}
+                      cash={getThisMonthOrders().cash}
+                      credit={getThisMonthOrders().credit}
+                    />
                   </Grid>
                   <Grid item xs>
                     <Grid container spacing={3}>
                       <Grid item lg={4} sm={6} xl={3} xs={12}>
-                        <Budget price={price} />
+                        <Budget price={price} lastUpdated={lastUpdated} />
                       </Grid>
 
                       {reports.map((report) => {
@@ -560,7 +646,7 @@ const Dashboard = () => {
               <TabPanel value={value} index={2}>
                 {allUsers && allUsers.length > 0 && (
                   <Grid item lg={12} md={12} xl={9} xs={12}>
-                    <CustomerList users={allUsers} />
+                    <CustomerList users={allUsers} orders={allOrderHistory} />
                   </Grid>
                 )}
               </TabPanel>

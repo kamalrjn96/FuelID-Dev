@@ -121,9 +121,9 @@ const LoginView = () => {
                     <FormControl className={classes.formControl}>
                       <TextField
                         fullWidth
-                        label="Remarks"
+                        label="Email ID"
                         margin="normal"
-                        name="cancelRemarks"
+                        name="resetEmailID"
                         variant="outlined"
                         required
                         onChange={(e) => setResetEmail(e.target.value)}

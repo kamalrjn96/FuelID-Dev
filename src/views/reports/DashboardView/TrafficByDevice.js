@@ -26,14 +26,22 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const TrafficByDevice = ({ className, ...rest }) => {
+const TrafficByDevice = (props) => {
   const classes = useStyles();
   const theme = useTheme();
+
+  const cashPercent = Math.trunc(
+    (Number(props.cash) / Number(props.total)) * 100
+  );
+
+  const creditPercent = Math.trunc(
+    (Number(props.credit) / Number(props.total)) * 100
+  );
 
   const data = {
     datasets: [
       {
-        data: [67, 33],
+        data: [cashPercent, creditPercent],
         backgroundColor: [colors.green[500], colors.orange[600]],
         borderWidth: 8,
         borderColor: colors.common.white,
@@ -68,20 +76,20 @@ const TrafficByDevice = ({ className, ...rest }) => {
   const devices = [
     {
       title: 'Cash',
-      value: 67,
+      value: cashPercent,
       icon: MoneyIcon,
       color: colors.green[500]
     },
     {
       title: 'Credit',
-      value: 33,
+      value: creditPercent,
       icon: CreditCardIcon,
       color: colors.orange[600]
     }
   ];
 
   return (
-    <Card className={clsx(classes.root, className)} {...rest}>
+    <Card className={clsx(classes.root)}>
       <CardHeader title="Monthly Earning" />
       <CardContent>
         <Grid
@@ -96,7 +104,7 @@ const TrafficByDevice = ({ className, ...rest }) => {
               This Month
             </Typography>
             <Typography color="textPrimary" variant="body1">
-              <strong>35,34,242</strong>
+              <strong>{props.total.toLocaleString()}</strong>
             </Typography>
           </Grid>
           <Grid item>
@@ -121,7 +129,7 @@ const TrafficByDevice = ({ className, ...rest }) => {
       </CardContent>
       <Box display="flex" ml={2}>
         <Typography color="primary" variant="caption">
-          Total value of Earnings for the month of Dec 2020 in Rupees
+          Total value of Earnings for the month of {props.month} 2020 in Rupees
         </Typography>
       </Box>
     </Card>

@@ -58,11 +58,26 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'June',
+  'July',
+  'Aug',
+  'Sept',
+  'Oct',
+  'Nov',
+  'Dec'
+];
+
 const Budget = (props) => {
   const classes = useStyles();
   const { currentUser } = useAuth();
 
-  let today = new Date().toISOString().slice(0, 10);
+  let today = new Date().toISOString().slice(0, 10).split('-')[2];
 
   const [userData, setUserData] = useState(props.userData);
 
@@ -186,6 +201,7 @@ const Budget = (props) => {
       {userData && userData.isOwner && (
         <div>
           <CardContent>
+            {console.log(props)}
             <Grid container justify="space-between" spacing={3}>
               <Grid item>
                 <Typography color="textSecondary" gutterBottom variant="h6">
@@ -197,6 +213,30 @@ const Budget = (props) => {
                   <Typography color="textSecondary" variant="caption">
                     <i className="fas fa-rupee-sign"></i> / Litre
                   </Typography>
+                </Typography>
+                <Typography
+                  variant="caption"
+                  style={
+                    new Date(props.lastUpdated)
+                      .toISOString()
+                      .slice(0, 10)
+                      .split('-')[2] !== today
+                      ? {
+                          color: 'red'
+                        }
+                      : {
+                          color: 'black'
+                        }
+                  }
+                >
+                  Last Updated :{' '}
+                  {
+                    new Date(props.lastUpdated)
+                      .toISOString()
+                      .slice(0, 10)
+                      .split('-')[2]
+                  }{' '}
+                  {monthNames[new Date(props.lastUpdated).getMonth()]}
                 </Typography>
               </Grid>
 
